@@ -86,21 +86,18 @@ $ActiveDirectoryUserLookup.ToolTipText = "Lookup User in Active Directory - AD_L
 $ActiveDirectoryUserLookup.Add_Click({
     $outputBox.AppendText("Running AD_Lookup.ps1 at $(Get-Date)`n")
     invoke-expression "start-process powershell.exe -ArgumentList '-executionpolicy Bypass .\AD_Lookup.ps1 User' -WorkingDirectory .\Local_Enum_Tools"
-    $outputBox.AppendText("User Lookup saved to $env:TEMP\UserLookup.txt`n")
 })
 
 $ActiveDirectoryGroupLookup.ToolTipText = "Lookup Group in Active Directory - AD_Lookup.ps1 Group"
 $ActiveDirectoryGroupLookup.Add_Click({
     $outputBox.AppendText("Running AD_Lookup.ps1 at $(Get-Date)`n")
     invoke-expression "start-process powershell.exe -ArgumentList '-executionpolicy Bypass .\AD_Lookup.ps1 Group' -WorkingDirectory .\Local_Enum_Tools"
-    $outputBox.AppendText("Group Lookup saved to $env:TEMP\GroupLookup.txt`n")
 })
 
 $ActiveDirectoryComputerLookup.ToolTipText = "Lookup Computer in Active Directory - AD_Lookup.ps1 Computer"
 $ActiveDirectoryComputerLookup.Add_Click({
     $outputBox.AppendText("Running AD_Lookup.ps1 at $(Get-Date)`n")
     invoke-expression "start-process powershell.exe -ArgumentList '-executionpolicy Bypass .\AD_Lookup.ps1 Computer' -WorkingDirectory .\Local_Enum_Tools"
-    $outputBox.AppendText("Computer Lookup saved to $env:TEMP\ComputerLookup.txt`n")
 })
 
 $ActiveDirectoryDomainUpdate.ToolTipText = "Get Avaliable Domains in Active Directory - AD_Update.ps1"

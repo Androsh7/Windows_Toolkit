@@ -23,25 +23,27 @@ function Test-ICMP {
     param (
         [string]$Target
     )
-    $pingResult = Test-Connection -ComputerName $Target -Count 1 -ErrorAction SilentlyContinue
-    if (-not $pingResult) {
-        Write-Host "$Target is not reachable - $(get-date -UFormat '%H:%M:%S')" -ForegroundColor Red
+    $pingResult = ping.exe -n 1 -w 1 $Target
+    $result = 
+    if ($pingResult | Where-Object { $_ -match "Received = [1-9]" }) {
+        $pingSpeed = ($pingResult | Select-String -Pattern "Average = \d+ms").Matches.Value -replace "[^0-9]"
+        Write-Host "$Target is reachable.    - $(get-date -UFormat "%H:%M:%S") - ${pingSpeed}ms delay" -ForegroundColor Green
     }
-    elseif ($pingResult.StatusCode -eq 0) {
-        Write-Host "$Target is reachable.    - $(get-date -UFormat "%H:%M:%S") - $($pingResult.ResponseTime)ms delay" -ForegroundColor Green
+    else {
+        Write-Host "$Target is not reachable - $(get-date -UFormat '%H:%M:%S')" -ForegroundColor Red
     }
 }
 
 # Ping each machine in the list
 Write-Host "==================================================" -ForegroundColor Cyan
-try {
+#try {
     while ($true) {
         foreach ($machine in $machines) {
             Test-ICMP -Target $machine
         }
     }
-}
-catch {
+#}
+#catch {                                       
     Enter_to_Exit
-}
+#}
 Enter_to_Exit
