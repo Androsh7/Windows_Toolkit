@@ -51,7 +51,7 @@ $menu.Items.Add($ConnectMenu) # Add menu to the menu strip
 # ------------------------------------------------------------------------------------------------
 
 # Create Enum Tools menu
-$EnumToolMenu = New-Object System.Windows.Forms.ToolStripMenuItem("Local Tools")
+$EnumToolMenu = New-Object System.Windows.Forms.ToolStripMenuItem("Tools")
 
 # Create Enum Tools menu items
 $Systeminfo = New-Object System.Windows.Forms.ToolStripMenuItem("Systeminfo")
