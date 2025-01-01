@@ -1,5 +1,2 @@
-# List of domains to be queryied
-# do not user quotation marks
-# Comments starting with "#" are ignored
-test.public
+﻿test.public
 this is a domain????

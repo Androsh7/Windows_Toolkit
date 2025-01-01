@@ -34,12 +34,12 @@ $ConnectMenu.DropDownItems.Add($RemoteDesktop)
 $ConnectMenu.DropDownItems.Add($SecureSocketShell)
 $ConnectMenu.DropDownItems.Add($TestConnection)
 
-$RemoteDesktop.ToolTipText = "Opens the Remote Desktop Connection client (mstsc.exe)"
+$RemoteDesktop.ToolTipText = "Opens the Remote Desktop Connection client - mstsc.exe"
 $RemoteDesktop.Add_Click({
     Start-Process "mstsc.exe" -ArgumentList "/noConsentPrompt"
 })
 
-$SecureSocketShell.ToolTipText = "Opens the Secure Socket Shell client (ssh.exe)"
+$SecureSocketShell.ToolTipText = "Opens the Secure Socket Shell client - ssh.exe"
 $SecureSocketShell.Add_Click({
     Start-Process "cmd.exe" -ArgumentList "/k ssh.exe"
 })
@@ -59,6 +59,10 @@ $ActiveDirectoryMenu = New-Object System.Windows.Forms.ToolStripMenuItem("Active
     $ActiveDirectoryUserLookup = New-Object System.Windows.Forms.ToolStripMenuItem("User Lookup")
     $ActiveDirectoryGroupLookup = New-Object System.Windows.Forms.ToolStripMenuItem("Group Lookup")
     $ActiveDirectoryComputerLookup = New-Object System.Windows.Forms.ToolStripMenuItem("Computer Lookup")
+    $ActiveDirectoryDomainUpdate = New-Object System.Windows.Forms.ToolStripMenuItem("Update Domains")
+$NetworkScanners = New-Object System.Windows.Forms.ToolStripMenuItem("Network Scanners")
+    $TCPFullConnectScanner = New-Object System.Windows.Forms.ToolStripMenuItem("TCP Full Connect Scanner")
+    $ICMPScanner = New-Object System.Windows.Forms.ToolStripMenuItem("ICMP Scanner")
 
 # Add items to Enum Tools menu
 $EnumToolMenu.DropDownItems.Add($Systeminfo)
@@ -66,6 +70,10 @@ $EnumToolMenu.DropDownItems.Add($ActiveDirectoryMenu)
     $ActiveDirectoryMenu.DropDownItems.Add($ActiveDirectoryUserLookup)
     $ActiveDirectoryMenu.DropDownItems.Add($ActiveDirectoryGroupLookup)
     $ActiveDirectoryMenu.DropDownItems.Add($ActiveDirectoryComputerLookup)
+    $ActiveDirectoryMenu.DropDownItems.Add($ActiveDirectoryDomainUpdate)
+$EnumToolMenu.DropDownItems.Add($NetworkScanners)
+    $NetworkScanners.DropDownItems.Add($TCPFullConnectScanner)
+    $NetworkScanners.DropDownItems.Add($ICMPScanner)
 
 $Systeminfo.ToolTipText = "Get System Information - Systeminfo.ps1"
 $Systeminfo.Add_Click({
@@ -95,6 +103,24 @@ $ActiveDirectoryComputerLookup.Add_Click({
     $outputBox.AppendText("Computer Lookup saved to $env:TEMP\ComputerLookup.txt`n")
 })
 
+$ActiveDirectoryDomainUpdate.ToolTipText = "Get Avaliable Domains in Active Directory - AD_Update.ps1"
+$ActiveDirectoryDomainUpdate.Add_Click({
+    $outputBox.AppendText("Running AD_Update.ps1 at $(Get-Date)`n")
+    Start-Process powershell.exe -ArgumentList "-executionpolicy Bypass .\Local_Enum_Tools\AD_Update.ps1 -WorkingDirectory .\Local_Enum_Tools"
+})
+
+$TCPFullConnectScanner.ToolTipText = "Scan for open TCP ports on a target - TCP_Full_Connect_Scanner.ps1"
+$TCPFullConnectScanner.Add_Click({
+    $outputBox.AppendText("Running TCP_Full_Connect_Scanner.ps1 at $(Get-Date)`n")
+    Start-Process powershell.exe -ArgumentList "-executionpolicy Bypass .\Remote_Enum_Tools\TCP_Full_Connect_Scanner.ps1 -WorkingDirectory .\Remote_Enum_Tools"
+})
+
+$ICMPScanner.ToolTipText = "Scan for open ICMP ports on a target - ICMP_Scanner.ps1"
+$ICMPScanner.Add_Click({
+    $outputBox.AppendText("Running ICMP_Scanner.ps1 at $(Get-Date)`n")
+    Start-Process powershell.exe -ArgumentList "-executionpolicy Bypass .\Remote_Enum_Tools\ICMP_Scanner.ps1 -WorkingDirectory .\Remote_Enum_Tools"
+})
+
 # Add menu to the menu strip
 $menu.Items.Add($EnumToolMenu)
 
@@ -106,14 +132,11 @@ $menu.Items.Add($EnumToolMenu)
 $JobsMenu = New-Object System.Windows.Forms.ToolStripMenuItem("Jobs")
 $StartJob = New-Object System.Windows.Forms.ToolStripMenuItem("Start Job")
 
-# Add items to Connect menu
-
-
 # Add items to Jobs menu
 $JobsMenu.DropDownItems.Add($StartJob)
-$JobsMenu.DropDownItems.Add($EndJob)
 
-$menu.Items.Add($JobsMenu) # Add menu to the menu strip
+ # Add menu to the menu strip
+$menu.Items.Add($JobsMenu)
 
 # Create a TextBox to display output
 $outputBox = New-Object System.Windows.Forms.TextBox

@@ -14,7 +14,7 @@ if (-not $mode -or ($mode -ne "User" -and $mode -ne "Group" -and $mode -ne "Comp
 Write-Host "----- Active Directory $mode Lookup -----" -ForegroundColor Cyan
 
 # Check if Active Directory module is installed
-if (-not (Get-Module -ListAvailable -Name ActiveDirectory) -and $false) {
+if (-not (Get-Module -ListAvailable -Name ActiveDirectory)) {
     Write-Host "ERROR - The Active Directory module is not installed. Please install it before running this script." -ForegroundColor Red
     Enter_to_Exit
     exit
