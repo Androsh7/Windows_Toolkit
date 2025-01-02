@@ -41,8 +41,6 @@ function Test-Port {
     }
 }
 
-#Write-Host "TCP Full-connect Scan on $target" -ForegroundColor Cyan
-#Write-Host "Scanning Ports $($portsInput -join ', ')" -ForegroundColor Cyan
 Write-Host "==================================================" -ForegroundColor Cyan
 try {
     foreach ($port in $ports) {
