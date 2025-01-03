@@ -1,23 +1,37 @@
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
+# Create a TabControl
+$tabControl = New-Object System.Windows.Forms.TabControl
+$tabControl.Size = New-Object System.Drawing.Size(500, 400)
+$tabControl.Location = New-Object System.Drawing.Point(0, 0)
+
+# Create Tabs
+$ConnectTab = New-Object System.Windows.Forms.TabPage
+$ConnectTab.Text = "Connect"
+$RemoteTab = New-Object System.Windows.Forms.TabPage
+$RemoteTab.Text = "Remote"
+$ServerTab = New-Object System.Windows.Forms.TabPage
+$ServerTab.Text = "Server"
+
+# Add tabs to the TabControl
+$tabControl.TabPages.Add($ConnectTab)
+$tabControl.TabPages.Add($RemoteTab)
+$tabControl.TabPages.Add($ServerTab)
+
+# Add TabControl to the form
+$form.Controls.Add($tabControl)
+
 # Create the form
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "Windows Toolkit"
 $form.Size = New-Object System.Drawing.Size(500, 400)
 $form.StartPosition = "CenterScreen"
 
-# Create a label
-$label = New-Object System.Windows.Forms.Label
-$label.Text = ""
-$label.TextAlign = [System.Drawing.ContentAlignment]::Left
-$label.Size = New-Object System.Drawing.Size(200, 20)
-$label.AutoSize = $true
-$label.Location = New-Object System.Drawing.Point(25, 40)
-$form.Controls.Add($label)
+$form.Controls.Add($tabControl)
 
-# Create a menu
-$menu = New-Object System.Windows.Forms.MenuStrip
+
+
 # ------------------------------------------------------------------------------------------------
 # -------------------------------------- VARIABLES -----------------------------------------------
 # ------------------------------------------------------------------------------------------------
@@ -77,141 +91,113 @@ Query_Computer_Info
 Update_Label 
 
 # ------------------------------------------------------------------------------------------------
-# -------------------------------------- BUTTONS ------------------------------------------------
+# --------------------------------------- CONNECT TAB --------------------------------------------
 # ------------------------------------------------------------------------------------------------
 
-# clear the screen buttonm
-$clearButton = New-Object System.Windows.Forms.Button
-$clearButton.Text = "Clear Screen"
-$clearButton.Size = New-Object System.Drawing.Size(100, 30)
-$clearButton.Location = New-Object System.Drawing.Point(370, 50)
-$clearButton.Add_Click({
-    $outputBox.Clear()
-})
-$form.Controls.Add($clearButton)
+# Create a label
+$label = New-Object System.Windows.Forms.Label
+$label.Text = ""
+Update_Label
+$label.TextAlign = [System.Drawing.ContentAlignment]::Left
+$label.Size = New-Object System.Drawing.Size(300, 20)
+$label.AutoSize = $true
+$label.Location = New-Object System.Drawing.Point(10, 15)
+$ConnectTab.Controls.Add($label)
 
-# kill session button
-$killButton = New-Object System.Windows.Forms.Button
-$killButton.Text = "Kill Session"
-$killButton.Size = New-Object System.Drawing.Size(100, 30)
-$killButton.Location = New-Object System.Drawing.Point(370, 100)
-$killButton.Add_Click({
-    if ($Session) {
-        $outputBox.AppendText("Disconnecting from $($Session.ComputerName) at $(Get-Date)`n")
-        Remove-PSSession -Session $Session
-        $outputBox.AppendText("Disconnected from $($Session.ComputerName)`n")
-        $Global:Session = $null
-    } else {
-        $outputBox.AppendText("No session to disconnect`n")
-    }
-    $Global:SessionStatus = "Disconnected"
-    Update_Label
-})
-$form.Controls.Add($killButton)
+# Create a label for the authentication method
+$authLabel = New-Object System.Windows.Forms.Label
+$authLabel.Text = "Auth Method:"
+$authLabel.Location = New-Object System.Drawing.Point(10, 150)
+$authLabel.AutoSize = $true
+$ConnectTab.Controls.Add($authLabel)
 
-# ------------------------------------------------------------------------------------------------
-# -------------------------------------- CONNECT MENU --------------------------------------------
-# ------------------------------------------------------------------------------------------------
+# Create a ComboBox for authentication methods
+$authComboBox = New-Object System.Windows.Forms.ComboBox
+$authComboBox.Items.AddRange(@("Password", "SSH Key", "OAuth", "Smart Card"))
+$authComboBox.SelectedIndex = 0
+$authComboBox.Location = New-Object System.Drawing.Point(80, 150)
+$authComboBox.Size = New-Object System.Drawing.Size(100, 20)
+$ConnectTab.Controls.Add($authComboBox)
 
-$ConnectMenu = New-Object System.Windows.Forms.ToolStripMenuItem("Connect")
-$ConnectHost = New-Object System.Windows.Forms.ToolStripMenuItem("Connect to Host (PS Remoting)")
-$ConnectMulti = New-Object System.Windows.Forms.ToolStripMenuItem("Connect to Multiple Hosts (PS Remoting)")
-$ConnectCredentials = New-Object System.Windows.Forms.ToolStripMenuItem("Store or Change Credentials (PS Remoting)")
-$RemoteDesktop = New-Object System.Windows.Forms.ToolStripMenuItem("Remote Desktop (RDP)")
-$SecureSocketShell = New-Object System.Windows.Forms.ToolStripMenuItem("Secure Socket Shell (SSH)")
-$TestConnection = New-Object System.Windows.Forms.ToolStripMenuItem("Test Connection")
+# Create a label for the username
+$usernameLabel = New-Object System.Windows.Forms.Label
+$usernameLabel.Text = "Username:"
+$usernameLabel.Location = New-Object System.Drawing.Point(10, 175)
+$usernameLabel.AutoSize = $true
+$ConnectTab.Controls.Add($usernameLabel)
 
-$ConnectMenu.DropDownItems.Add($ConnectHost)
-$ConnectMenu.DropDownItems.Add($ConnectMulti)
-$ConnectMenu.DropDownItems.Add($ConnectCredentials)
-$ConnectMenu.DropDownItems.Add($RemoteDesktop)
-$ConnectMenu.DropDownItems.Add($SecureSocketShell)
-$ConnectMenu.DropDownItems.Add($TestConnection)
+# Create a TextBox for the username
+$usernameTextBox = New-Object System.Windows.Forms.TextBox
+$usernameTextBox.Location = New-Object System.Drawing.Point(80, 175)
+$usernameTextBox.Size = New-Object System.Drawing.Size(150, 20)
+$ConnectTab.Controls.Add($usernameTextBox)
 
-$ConnectHost.ToolTipText = "Connect to Host (PS Remoting)"
-$ConnectHost.Add_Click({
-    $hostnameInput = New-Object System.Windows.Forms.Form
-    $hostnameInput.Text = "PowerShell Remoting"
-    $hostnameInput.Size = New-Object System.Drawing.Size(300, 150)
-    $hostnameInput.StartPosition = "CenterParent"
+# Create a label for the password
+$passwordLabel = New-Object System.Windows.Forms.Label
+$passwordLabel.Text = "Password:"
+$passwordLabel.Location = New-Object System.Drawing.Point(10, 200)
+$passwordLabel.autosize = $true
+$ConnectTab.Controls.Add($passwordLabel)
 
-    $hostnameLabel = New-Object System.Windows.Forms.Label
-    $hostnameLabel.Text = "Hostname:"
-    $hostnameLabel.Location = New-Object System.Drawing.Point(10, 20)
-    $hostnameLabel.AutoSize = $true
-    $hostnameInput.Controls.Add($hostnameLabel)
+# Create a TextBox for the password
+$passwordTextBox = New-Object System.Windows.Forms.TextBox
+$passwordTextBox.Location = New-Object System.Drawing.Point(80, 200)
+$passwordTextBox.Size = New-Object System.Drawing.Size(150, 20)
+$passwordTextBox.UseSystemPasswordChar = $true
+$ConnectTab.Controls.Add($passwordTextBox)
 
-    $hostnameTextBox = New-Object System.Windows.Forms.TextBox
-    $hostnameTextBox.Location = New-Object System.Drawing.Point(80, 18)
-    $hostnameTextBox.Size = New-Object System.Drawing.Size(200, 20)
-    $hostnameInput.Controls.Add($hostnameTextBox)
+# Create a label for the PIN (for Smart Card authentication)
+$pinLabel = New-Object System.Windows.Forms.Label
+$pinLabel.Text = "PIN:"
+$pinLabel.Location = New-Object System.Drawing.Point(10, 175)
+$pinLabel.AutoSize = $true
+$pinLabel.Visible = $false
+$ConnectTab.Controls.Add($pinLabel)
 
-    $okButton = New-Object System.Windows.Forms.Button
-    $okButton.Text = "OK"
-    $okButton.Location = New-Object System.Drawing.Point(80, 60)
+# Create a TextBox for the PIN (for Smart Card authentication)
+$pinTextBox = New-Object System.Windows.Forms.TextBox
+$pinTextBox.Location = New-Object System.Drawing.Point(80, 175)
+$pinTextBox.UseSystemPasswordChar = $true
+$pinTextBox.Visible = $false
+$ConnectTab.Controls.Add($pinTextBox)
 
-    $submitHostname = {
-        $connectHost = $hostnameTextBox.Text
-        $hostnameInput.Close()
-        if ($connectHost -and $connectHost.Trim() -ne "") {
-            $outputBox.AppendText("Connecting to $connectHost at $(Get-Date)`n")
-            if ($Global:StoredCredential) {
-                $outputBox.AppendText("Using stored credentials $($Global:StoredCredential.UserName)`n")
-                $Global:Session = New-PSSession -ComputerName $connectHost -Credential $Global:StoredCredential
-            } else {
-                $outputBox.AppendText("No credentials stored, using current user`n")
-                $Global:Session = New-PSSession -ComputerName $connectHost
-            }
-
-            if ($Session) {
-                $outputBox.AppendText("Connected to $connectHost`n")
-                $outputBox.AppendText("Session ID: $($Session.Id)`n")
-                $outputBox.AppendText("Session Name: $($Session.Name)`n")
-                $outputBox.AppendText("Session Computer Name: $($Session.ComputerName)`n")
-                $outputBox.AppendText("Session State: $($Session.State)`n")
-                $global:SessionStatus = "Connected"
-            } else {
-                $outputBox.AppendText("Failed to connect to $connectHost`n")
-            }
-        } else {
-            $outputBox.AppendText("No hostname provided`n")
+# Event handler for authentication method selection
+$authComboBox.add_SelectedIndexChanged({
+    switch ($authComboBox.SelectedItem) {
+        "Password" {
+            $usernameLabel.Visible = $true
+            $usernameTextBox.Visible = $true
+            $passwordLabel.Visible = $true
+            $passwordTextBox.Visible = $true
+            $pinLabel.Visible = $false
+            $pinTextBox.Visible = $false
         }
-        Update_Label
-    }
-
-    $okButton.Add_Click($submitHostname)
-    $hostnameTextBox.Add_KeyDown({
-        if ($_.KeyCode -eq [System.Windows.Forms.Keys]::Enter) {
-            $submitHostname.Invoke()
+        "SSH Key" {
+            $usernameLabel.Visible = $true
+            $usernameTextBox.Visible = $true
+            $passwordLabel.Visible = $false
+            $passwordTextBox.Visible = $false
+            $pinLabel.Visible = $false
+            $pinTextBox.Visible = $false
         }
-    })
-    $hostnameInput.Controls.Add($okButton)
-
-    $hostnameInput.ShowDialog()
+        "OAuth" {
+            $usernameLabel.Visible = $true
+            $usernameTextBox.Visible = $true
+            $passwordLabel.Visible = $false
+            $passwordTextBox.Visible = $false
+            $pinLabel.Visible = $false
+            $pinTextBox.Visible = $false
+        }
+        "Smart Card" {
+            $usernameLabel.Visible = $false
+            $usernameTextBox.Visible = $false
+            $passwordLabel.Visible = $false
+            $passwordTextBox.Visible = $false
+            $pinLabel.Visible = $true
+            $pinTextBox.Visible = $true
+        }
+    }
 })
-
-$ConnectMulti.ToolTipText = "Connect to Multiple Hosts (PS Remoting)"
-$ConnectMulti.Add_Click({
-    $outputBox.AppendText("Doesn't Work Yet, Sorry!`n")
-})
-
-
-$ConnectCredentials.ToolTipText = "Cache credentials for PS Remoting"
-$ConnectCredentials.Add_Click({
-    $Global:StoredCredential = Get-Credential
-})
-
-$RemoteDesktop.ToolTipText = "Opens the Remote Desktop Connection client - mstsc.exe"
-$RemoteDesktop.Add_Click({
-    Start-Process "mstsc.exe" -ArgumentList "/noConsentPrompt"
-})
-
-$SecureSocketShell.ToolTipText = "Opens the Secure Socket Shell client - ssh.exe"
-$SecureSocketShell.Add_Click({
-    Start-Process "cmd.exe" -ArgumentList "/k ssh.exe"
-})
-
-$menu.Items.Add($ConnectMenu) # Add menu to the menu strip
 
 # ------------------------------------------------------------------------------------------------
 # ------------------------------------- ENUMERATE MENU -------------------------------------------
@@ -316,6 +302,89 @@ $ClearLog.Add_Click({
 
  # Add menu to the menu strip
 $menu.Items.Add($LogMenu)
+
+# ------------------------------------------------------------------------------------------------
+# --------------------------------------- SERVER TAB ---------------------------------------------
+# ------------------------------------------------------------------------------------------------
+
+# Create a label for the server status
+$serverStatusLabel = New-Object System.Windows.Forms.Label
+$serverStatusLabel.Text = "Server Status:"
+$serverStatusLabel.Location = New-Object System.Drawing.Point(10, 15)
+$serverStatusLabel.AutoSize = $true
+$ServerTab.Controls.Add($serverStatusLabel)
+
+# Create a ListView to display server statuses
+$serverStatusListView = New-Object System.Windows.Forms.ListView
+$serverStatusListView.Location = New-Object System.Drawing.Point(10, 40)
+$serverStatusListView.Size = New-Object System.Drawing.Size(460, 300)
+$serverStatusListView.View = [System.Windows.Forms.View]::Details
+$serverStatusListView.Columns.Add("Name", -2, [System.Windows.Forms.HorizontalAlignment]::Left)
+$serverStatusListView.Columns.Add("Address", -2, [System.Windows.Forms.HorizontalAlignment]::Left)
+$serverStatusListView.Columns.Add("IPv4", -2, [System.Windows.Forms.HorizontalAlignment]::Left)
+$serverStatusListView.Columns.Add("Status", -2, [System.Windows.Forms.HorizontalAlignment]::Left)
+$ServerTab.Controls.Add($serverStatusListView)
+
+# Import server details from a CSV file
+$csvPath = "C:\path\to\servers.csv"
+$servers = Import-Csv -Path $csvPath | ForEach-Object {
+    @{
+        Name = $_.Name
+        Address = $_.Address
+        IPv4 = $_.IPv4
+    }
+}
+
+function Initialize-ServerStatusListView {
+    $serverStatusListView.Items.Clear()
+    $serverStatusListView.Columns.Clear()
+    $serverStatusListView.Columns.Add("Name", -2, [System.Windows.Forms.HorizontalAlignment]::Left)
+    $serverStatusListView.Columns.Add("Address", -2, [System.Windows.Forms.HorizontalAlignment]::Left)
+    $serverStatusListView.Columns.Add("IPv4", -2, [System.Windows.Forms.HorizontalAlignment]::Left)
+    $serverStatusListView.Columns.Add("Status", -2, [System.Windows.Forms.HorizontalAlignment]::Left)
+}
+
+function Update-ServerStatus {
+    for ($i = 0; $i -lt $servers.Count; $i++) {
+        $server = $servers[$i]
+        $ping = Test-Connection -ComputerName $server.Address -Count 1 -Quiet
+        if ($ping) {
+            $status = "Online"
+            $color = [System.Drawing.Color]::Green
+        } else {
+            $status = "Offline"
+            $color = [System.Drawing.Color]::Red
+        }
+        if ($serverStatusListView.Items.Count -le $i) {
+            $item = New-Object System.Windows.Forms.ListViewItem($server.Name)
+            $item.SubItems.Add($server.Address)
+            $item.SubItems.Add($server.IPv4)
+            $item.SubItems.Add($status)
+            $item.ForeColor = $color
+            $serverStatusListView.Items.Add($item)
+        } else {
+            $item = $serverStatusListView.Items[$i]
+            $item.SubItems[0].Text = $server.Name
+            $item.SubItems[1].Text = $server.Address
+            $item.SubItems[2].Text = $server.IPv4
+            $item.SubItems[3].Text = $status
+            $item.ForeColor = $color
+        }
+    }
+    $serverStatusListView.AutoResizeColumns([System.Windows.Forms.ColumnHeaderAutoResizeStyle]::ColumnContent)
+}
+
+# Initialize the ListView columns
+Initialize-ServerStatusListView
+
+# Timer to update server status every 10 seconds
+$timer = New-Object System.Windows.Forms.Timer
+$timer.Interval = 10000
+$timer.Add_Tick({ Update-ServerStatus })
+$timer.Start()
+
+# Initial update of server status
+Update-ServerStatus
 
 # ------------------------------------------------------------------------------------------------
 # ------------------------------------ TEXTBOX SETUP ---------------------------------------------
