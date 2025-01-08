@@ -13,11 +13,14 @@ $RemoteTab = New-Object System.Windows.Forms.TabPage
 $RemoteTab.Text = "Remote"
 $ServerTab = New-Object System.Windows.Forms.TabPage
 $ServerTab.Text = "Server"
+$NetworkTab = New-Object System.Windows.Forms.TabPage
+$NetworkTab.Text = "Network"
 
 # Add tabs to the TabControl
 $tabControl.TabPages.Add($ConnectTab)
 $tabControl.TabPages.Add($RemoteTab)
 $tabControl.TabPages.Add($ServerTab)
+$tabControl.TabPages.Add($NetworkTab)
 
 # Add TabControl to the form
 $form.Controls.Add($tabControl)
@@ -29,8 +32,6 @@ $form.Size = New-Object System.Drawing.Size(500, 400)
 $form.StartPosition = "CenterScreen"
 
 $form.Controls.Add($tabControl)
-
-
 
 # ------------------------------------------------------------------------------------------------
 # -------------------------------------- VARIABLES -----------------------------------------------
@@ -115,7 +116,7 @@ $ConnectTab.Controls.Add($authLabel)
 $authComboBox = New-Object System.Windows.Forms.ComboBox
 $authComboBox.Items.AddRange(@("Password", "SSH Key", "OAuth", "Smart Card"))
 $authComboBox.SelectedIndex = 0
-$authComboBox.Location = New-Object System.Drawing.Point(80, 150)
+$authComboBox.Location = New-Object System.Drawing.Point(80, 148)
 $authComboBox.Size = New-Object System.Drawing.Size(100, 20)
 $ConnectTab.Controls.Add($authComboBox)
 
@@ -200,206 +201,161 @@ $authComboBox.add_SelectedIndexChanged({
 })
 
 # ------------------------------------------------------------------------------------------------
-# ------------------------------------- ENUMERATE MENU -------------------------------------------
-# ------------------------------------------------------------------------------------------------
-
-# Create Enum Tools menu
-$EnumToolMenu = New-Object System.Windows.Forms.ToolStripMenuItem("Tools")
-
-# Create Enum Tools menu items
-$Systeminfo = New-Object System.Windows.Forms.ToolStripMenuItem("Systeminfo")
-$ActiveDirectoryMenu = New-Object System.Windows.Forms.ToolStripMenuItem("Active Directory")
-    $ActiveDirectoryUserLookup = New-Object System.Windows.Forms.ToolStripMenuItem("User Lookup")
-    $ActiveDirectoryGroupLookup = New-Object System.Windows.Forms.ToolStripMenuItem("Group Lookup")
-    $ActiveDirectoryComputerLookup = New-Object System.Windows.Forms.ToolStripMenuItem("Computer Lookup")
-    $ActiveDirectoryDomainUpdate = New-Object System.Windows.Forms.ToolStripMenuItem("Update Domains")
-$NetworkScanners = New-Object System.Windows.Forms.ToolStripMenuItem("Network Scanners")
-    $TCPFullConnectScanner = New-Object System.Windows.Forms.ToolStripMenuItem("TCP Full Connect Scanner")
-    $ICMPScanner = New-Object System.Windows.Forms.ToolStripMenuItem("ICMP Scanner")
-
-# Add items to Enum Tools menu
-$EnumToolMenu.DropDownItems.Add($Systeminfo)
-$EnumToolMenu.DropDownItems.Add($ActiveDirectoryMenu)
-    $ActiveDirectoryMenu.DropDownItems.Add($ActiveDirectoryUserLookup)
-    $ActiveDirectoryMenu.DropDownItems.Add($ActiveDirectoryGroupLookup)
-    $ActiveDirectoryMenu.DropDownItems.Add($ActiveDirectoryComputerLookup)
-    $ActiveDirectoryMenu.DropDownItems.Add($ActiveDirectoryDomainUpdate)
-$EnumToolMenu.DropDownItems.Add($NetworkScanners)
-    $NetworkScanners.DropDownItems.Add($TCPFullConnectScanner)
-    $NetworkScanners.DropDownItems.Add($ICMPScanner)
-
-$Systeminfo.ToolTipText = "Get System Information - Systeminfo.ps1"
-$Systeminfo.Add_Click({
-    $outputBox.AppendText("Running Systeminfo.ps1 at $(Get-Date)`n")
-    Start-Process powershell.exe -ArgumentList "-executionpolicy Bypass .\Local_Enum_Tools\SystemInfo.ps1"
-    $outputBox.AppendText("System Information saved to $env:TEMP\SystemInfo.txt`n")
-})
-
-$ActiveDirectoryUserLookup.ToolTipText = "Lookup User in Active Directory - AD_Lookup.ps1 User"
-$ActiveDirectoryUserLookup.Add_Click({
-    $outputBox.AppendText("Running AD_Lookup.ps1 at $(Get-Date)`n")
-    invoke-expression "start-process powershell.exe -ArgumentList '-executionpolicy Bypass .\AD_Lookup.ps1 User' -WorkingDirectory .\Local_Enum_Tools"
-})
-
-$ActiveDirectoryGroupLookup.ToolTipText = "Lookup Group in Active Directory - AD_Lookup.ps1 Group"
-$ActiveDirectoryGroupLookup.Add_Click({
-    $outputBox.AppendText("Running AD_Lookup.ps1 at $(Get-Date)`n")
-    invoke-expression "start-process powershell.exe -ArgumentList '-executionpolicy Bypass .\AD_Lookup.ps1 Group' -WorkingDirectory .\Local_Enum_Tools"
-})
-
-$ActiveDirectoryComputerLookup.ToolTipText = "Lookup Computer in Active Directory - AD_Lookup.ps1 Computer"
-$ActiveDirectoryComputerLookup.Add_Click({
-    $outputBox.AppendText("Running AD_Lookup.ps1 at $(Get-Date)`n")
-    invoke-expression "start-process powershell.exe -ArgumentList '-executionpolicy Bypass .\AD_Lookup.ps1 Computer' -WorkingDirectory .\Local_Enum_Tools"
-})
-
-$ActiveDirectoryDomainUpdate.ToolTipText = "Get Avaliable Domains in Active Directory - AD_Update.ps1"
-$ActiveDirectoryDomainUpdate.Add_Click({
-    $outputBox.AppendText("Running AD_Update.ps1 at $(Get-Date)`n")
-    Start-Process powershell.exe -ArgumentList "-executionpolicy Bypass .\Local_Enum_Tools\AD_Update.ps1 -WorkingDirectory .\Local_Enum_Tools"
-})
-
-$TCPFullConnectScanner.ToolTipText = "Scan for open TCP ports on a target - TCP_Full_Connect_Scanner.ps1"
-$TCPFullConnectScanner.Add_Click({
-    $outputBox.AppendText("Running TCP_Full_Connect_Scanner.ps1 at $(Get-Date)`n")
-    Start-Process powershell.exe -ArgumentList "-executionpolicy Bypass .\Remote_Enum_Tools\TCP_Full_Connect_Scanner.ps1 -WorkingDirectory .\Remote_Enum_Tools"
-})
-
-$ICMPScanner.ToolTipText = "Scan for open ICMP ports on a target - ICMP_Scanner.ps1"
-$ICMPScanner.Add_Click({
-    $outputBox.AppendText("Running ICMP_Scanner.ps1 at $(Get-Date)`n")
-    Start-Process powershell.exe -ArgumentList "-executionpolicy Bypass .\Remote_Enum_Tools\ICMP_Scanner.ps1 -WorkingDirectory .\Remote_Enum_Tools"
-})
-
-# Add menu to the menu strip
-$menu.Items.Add($EnumToolMenu)
-
-# ------------------------------------------------------------------------------------------------
-# --------------------------------------- LOGS MENU ----------------------------------------------
-# ------------------------------------------------------------------------------------------------
-
-# Create Jobs menu
-$LogMenu = New-Object System.Windows.Forms.ToolStripMenuItem("Logs")
-$ReadLog = New-Object System.Windows.Forms.ToolStripMenuItem("Read Logs")
-$ClearLog = New-Object System.Windows.Forms.ToolStripMenuItem("Clear Logs")
-
-# Add items to Jobs menu
-$LogMenu.DropDownItems.Add($ReadLog)
-$LogMenu.DropDownItems.Add($ClearLog)
-
-$ReadLog.ToolTipText = "Read Logs - $(Get-Location).\Logs"
-$ReadLog.Add_Click({
-    $OpenFile = Open-File "$(Get-Location).\Logs" "Text Files (*.txt)|*.txt"
-    if ($OpenFile) {
-        Start-Process notepad.exe $OpenFile
-    }
-})
-
-$ClearLog.ToolTipText = "Clear Logs - $(Get-Location).\Logs"
-$ClearLog.Add_Click({
-    Remove-Item "$(Get-Location).\Logs\*.txt"
-})
-
- # Add menu to the menu strip
-$menu.Items.Add($LogMenu)
-
-# ------------------------------------------------------------------------------------------------
 # --------------------------------------- SERVER TAB ---------------------------------------------
 # ------------------------------------------------------------------------------------------------
 
+# Variables for server list
+$servers = $null
+
+# function to import servers from a file
+function Import-Servers ([string]$servers) {
+    $global:servers = Import-Csv $servers
+}
+
+# function to query the status of the servers
+function Query_Servers {
+    foreach ($server in $servers) {
+        try {
+            Test-Connection -ComputerName $server.Hostname -Count 1 -Quiet
+            $server.Status = "Online"
+        }
+        catch {
+            $server.Status = "Offline"
+        }
+    }
+}
+
 # Create a label for the server status
 $serverStatusLabel = New-Object System.Windows.Forms.Label
-$serverStatusLabel.Text = "Server Status:"
-$serverStatusLabel.Location = New-Object System.Drawing.Point(10, 15)
+$serverStatusLabel.Text = "----- Server Status -----"
+$serverStatusLabel.Location = New-Object System.Drawing.Point(10, 10)
 $serverStatusLabel.AutoSize = $true
 $ServerTab.Controls.Add($serverStatusLabel)
 
-# Create a ListView to display server statuses
-$serverStatusListView = New-Object System.Windows.Forms.ListView
-$serverStatusListView.Location = New-Object System.Drawing.Point(10, 40)
-$serverStatusListView.Size = New-Object System.Drawing.Size(460, 300)
-$serverStatusListView.View = [System.Windows.Forms.View]::Details
-$serverStatusListView.Columns.Add("Name", -2, [System.Windows.Forms.HorizontalAlignment]::Left)
-$serverStatusListView.Columns.Add("Address", -2, [System.Windows.Forms.HorizontalAlignment]::Left)
-$serverStatusListView.Columns.Add("IPv4", -2, [System.Windows.Forms.HorizontalAlignment]::Left)
-$serverStatusListView.Columns.Add("Status", -2, [System.Windows.Forms.HorizontalAlignment]::Left)
-$ServerTab.Controls.Add($serverStatusListView)
+# Create a button to update the server status
+$RefreshButton = New-Object System.Windows.Forms.Button
+$RefreshButton.Text = "Refresh"
+$RefreshButton.Location = New-Object System.Drawing.Point(150, 5)
+$RefreshButton.AutoSize = $true
+$RefreshButton.Add_Click({
+    Query_Servers
+})
+$ServerTab.Controls.Add($RefreshButton)
 
-# Import server details from a CSV file
-$csvPath = "C:\path\to\servers.csv"
-$servers = Import-Csv -Path $csvPath | ForEach-Object {
-    @{
-        Name = $_.Name
-        Address = $_.Address
-        IPv4 = $_.IPv4
+# Create a button to re-import the servers
+$ImportButton = New-Object System.Windows.Forms.Button
+$ImportButton.Text = "Import"
+$ImportButton.Location = New-Object System.Drawing.Point(250, 5)
+$ImportButton.AutoSize = $true
+$ImportButton.Add_Click({
+    $servers = Open-File -initialDirectory $env:USERPROFILE -filter "CSV Files (*.csv)|*.csv"
+    if ($servers) {
+        Import-Servers -servers $servers
     }
-}
+})
+$ServerTab.Controls.Add($ImportButton)
 
-function Initialize-ServerStatusListView {
-    $serverStatusListView.Items.Clear()
-    $serverStatusListView.Columns.Clear()
-    $serverStatusListView.Columns.Add("Name", -2, [System.Windows.Forms.HorizontalAlignment]::Left)
-    $serverStatusListView.Columns.Add("Address", -2, [System.Windows.Forms.HorizontalAlignment]::Left)
-    $serverStatusListView.Columns.Add("IPv4", -2, [System.Windows.Forms.HorizontalAlignment]::Left)
-    $serverStatusListView.Columns.Add("Status", -2, [System.Windows.Forms.HorizontalAlignment]::Left)
-}
+# create a button to clear the server list
+$ClearButton = New-Object System.Windows.Forms.Button
+$ClearButton.Text = "Clear"
+$ClearButton.Location = New-Object System.Drawing.Point(350, 5)
+$ClearButton.AutoSize = $true
+$ClearButton.Add_Click({
 
-function Update-ServerStatus {
-    for ($i = 0; $i -lt $servers.Count; $i++) {
-        $server = $servers[$i]
-        $ping = Test-Connection -ComputerName $server.Address -Count 1 -Quiet
-        if ($ping) {
-            $status = "Online"
-            $color = [System.Drawing.Color]::Green
-        } else {
-            $status = "Offline"
-            $color = [System.Drawing.Color]::Red
-        }
-        if ($serverStatusListView.Items.Count -le $i) {
-            $item = New-Object System.Windows.Forms.ListViewItem($server.Name)
-            $item.SubItems.Add($server.Address)
-            $item.SubItems.Add($server.IPv4)
-            $item.SubItems.Add($status)
-            $item.ForeColor = $color
-            $serverStatusListView.Items.Add($item)
-        } else {
-            $item = $serverStatusListView.Items[$i]
-            $item.SubItems[0].Text = $server.Name
-            $item.SubItems[1].Text = $server.Address
-            $item.SubItems[2].Text = $server.IPv4
-            $item.SubItems[3].Text = $status
-            $item.ForeColor = $color
-        }
-    }
-    $serverStatusListView.AutoResizeColumns([System.Windows.Forms.ColumnHeaderAutoResizeStyle]::ColumnContent)
-}
+})
+$ServerTab.Controls.Add($ClearButton)
 
-# Initialize the ListView columns
-Initialize-ServerStatusListView
+# ------------------------------------------------------------------------------------------------
+# ------------------------------------ NETWORK SETUP ---------------------------------------------
+# ------------------------------------------------------------------------------------------------
 
-# Timer to update server status every 10 seconds
-$timer = New-Object System.Windows.Forms.Timer
-$timer.Interval = 10000
-$timer.Add_Tick({ Update-ServerStatus })
-$timer.Start()
+# Create a label for the scanner section
+$scannerLabel = New-Object System.Windows.Forms.Label
+$scannerLabel.Text = "-- SCANNERS --"
+$scannerLabel.Location = New-Object System.Drawing.Point(10, 10)
+$scannerLabel.Font = New-Object System.Drawing.Font($scannerLabel.Font, [System.Drawing.FontStyle]::Bold)
+$scannerLabel.AutoSize = $true
+$NetworkTab.Controls.Add($scannerLabel)
 
-# Initial update of server status
-Update-ServerStatus
+# Create a button to start the ICMP scanner
+$ICMP_Scanner = New-Object System.Windows.Forms.Button
+$ICMP_Scanner.Text = "ICMP Scanner"
+$ICMP_Scanner.Location = New-Object System.Drawing.Point(10, 40)
+$ICMP_Scanner.Size = New-Object System.Drawing.Size(90, 30)
+$ICMP_Scanner.Add_Click({
+    Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -executionpolicy Bypass -File ./Remote_Enum_Tools/ICMP_Scanner.ps1"
+})
+$NetworkTab.Controls.Add($ICMP_Scanner)
+
+# Create a button to start the TCP scanner
+$TCP_Scanner = New-Object System.Windows.Forms.Button
+$TCP_Scanner.Text = "TCP Scanner "
+$TCP_Scanner.Location = New-Object System.Drawing.Point(10, 80)
+$TCP_Scanner.Size = New-Object System.Drawing.Size(90, 30)
+$TCP_Scanner.Add_Click({
+    Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -executionpolicy Bypass -File ./Remote_Enum_Tools/TCP_Full_Connect_Scanner.ps1"
+})
+$NetworkTab.Controls.Add($TCP_Scanner)
+
+# Create a label for the transmitters
+$transmitterLabel = New-Object System.Windows.Forms.Label
+$transmitterLabel.Text = "-- TRANSMITTERS --"
+$transmitterLabel.Location = New-Object System.Drawing.Point(121, 10)
+$transmitterLabel.Font = New-Object System.Drawing.Font($scannerLabel.Font, [System.Drawing.FontStyle]::Bold)
+$transmitterLabel.AutoSize = $true
+$NetworkTab.Controls.Add($transmitterLabel)
+
+# Create a button to start the TCP scanner
+$TCP_Transmitter = New-Object System.Windows.Forms.Button
+$TCP_Transmitter.Text = "TCP Transmitter"
+$TCP_Transmitter.Location = New-Object System.Drawing.Point(120, 40)
+$TCP_Transmitter.Size = New-Object System.Drawing.Size(120, 30)
+$TCP_Transmitter.Add_Click({
+    Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -executionpolicy Bypass -File ./Transmitters/TCP_Transmitter.ps1"
+})
+$NetworkTab.Controls.Add($TCP_Transmitter)
+
+# Create a button to start the TCP scanner
+$UDP_Transmitter = New-Object System.Windows.Forms.Button
+$UDP_Transmitter.Text = "UDP Transmitter"
+$UDP_Transmitter.Location = New-Object System.Drawing.Point(120, 80)
+$UDP_Transmitter.Size = New-Object System.Drawing.Size(120, 30)
+$UDP_Transmitter.Add_Click({
+    Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -executionpolicy Bypass -File ./Transmitters/UDP_Transmitter.ps1"
+})
+$NetworkTab.Controls.Add($UDP_Transmitter)
+
+# Create a label for the receiver
+$ReceiverLabel = New-Object System.Windows.Forms.Label
+$ReceiverLabel.Text = "--- RECEIVERS ---"
+$ReceiverLabel.Location = New-Object System.Drawing.Point(260, 10)
+$ReceiverLabel.Font = New-Object System.Drawing.Font($scannerLabel.Font, [System.Drawing.FontStyle]::Bold)
+$ReceiverLabel.AutoSize = $true
+$NetworkTab.Controls.Add($ReceiverLabel)
+
+# Create a button to start the TCP receiver
+$TCP_Receiver = New-Object System.Windows.Forms.Button
+$TCP_Receiver.Text = "TCP Receiver"
+$TCP_Receiver.Location = New-Object System.Drawing.Point(260, 40)
+$TCP_Receiver.Size = New-Object System.Drawing.Size(100, 30)
+$TCP_Receiver.Add_Click({
+    Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -executionpolicy Bypass -File ./Receivers/TCP_Receiver.ps1"
+})
+$NetworkTab.Controls.Add($TCP_Receiver)
+
+# Create a button to start the UDP receiver
+$UDP_Receiver = New-Object System.Windows.Forms.Button
+$UDP_Receiver.Text = "UDP Receiver"
+$UDP_Receiver.Location = New-Object System.Drawing.Point(260, 80)
+$UDP_Receiver.Size = New-Object System.Drawing.Size(100, 30)
+$UDP_Receiver.Add_Click({
+    Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -executionpolicy Bypass -File ./Receivers/UDP_Receiver.ps1"
+})
+$NetworkTab.Controls.Add($UDP_Receiver)
 
 # ------------------------------------------------------------------------------------------------
 # ------------------------------------ TEXTBOX SETUP ---------------------------------------------
 # ------------------------------------------------------------------------------------------------
-
-# Create a TextBox to display output
-$outputBox = New-Object System.Windows.Forms.TextBox
-$outputBox.Multiline = $true
-$outputBox.ScrollBars = "Vertical"
-$outputBox.Size = New-Object System.Drawing.Size(450, 200)
-$outputBox.Location = New-Object System.Drawing.Point(20, 150)
-$form.Controls.Add($outputBox)
-
-$form.MainMenuStrip = $menu
-$form.Controls.Add($menu)
 
 # Show the form
 $form.Add_Shown({$form.Activate()})
