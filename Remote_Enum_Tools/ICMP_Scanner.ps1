@@ -36,14 +36,13 @@ function Test-ICMP {
 
 # Ping each machine in the list
 Write-Host "==================================================" -ForegroundColor Cyan
-#try {
+try {
     while ($true) {
         foreach ($machine in $machines) {
             Test-ICMP -Target $machine
         }
     }
-#}
-#catch {                                       
+} catch {                                       
     Enter_to_Exit
-#}
+}
 Enter_to_Exit

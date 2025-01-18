@@ -22,9 +22,6 @@ $tabControl.TabPages.Add($RemoteTab)
 $tabControl.TabPages.Add($ServerTab)
 $tabControl.TabPages.Add($NetworkTab)
 
-# Add TabControl to the form
-$form.Controls.Add($tabControl)
-
 # Create the form
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "Windows Toolkit"
@@ -89,7 +86,7 @@ function Update_Label {
                   "Session Status: $Global:SessionStatus"
 }
 Query_Computer_Info
-Update_Label 
+Update_Label
 
 # ------------------------------------------------------------------------------------------------
 # --------------------------------------- CONNECT TAB --------------------------------------------

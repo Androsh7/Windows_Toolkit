@@ -89,10 +89,6 @@ function Transmit_TCP_Message {
         $length = $Message.Length
         $date = Get-Date -UFormat "%m/%d/%Y %R UTC%Z"
         Write-Host "SENT ${length} Characters AT ${date}" -ForegroundColor Green
-
-        # Log the transmission to the convo_file
-        Add-Content -Path $convo_file -Value "----- SENT TO ${dst_ip}:${dst_port} ${dst_proto} AT ${date} -----"
-        Add-Content -Path $convo_file -Value "$Message"
     }
     catch {
         Write-Host "ERROR: could not send message" -ForegroundColor Red
