@@ -133,7 +133,7 @@ $ConnectTab.Controls.Add($HostLabel)
 # Create a textbox for the hostname
 $HostTextBox = New-Object System.Windows.Forms.TextBox
 $HostTextBox.Location = New-Object System.Drawing.Point(100, 148)
-$HostTextBox.Size = New-Object System.Drawing.Size(150, 20)
+$HostTextBox.Size = New-Object System.Drawing.Size(175, 20)
 $ConnectTab.Controls.Add($HostTextBox)
 
 # Create a label for the authentication method
@@ -156,12 +156,14 @@ $usernameLabel = New-Object System.Windows.Forms.Label
 $usernameLabel.Text = "Username:"
 $usernameLabel.Location = New-Object System.Drawing.Point(10, 200)
 $usernameLabel.AutoSize = $true
+$usernameLabel.Visible = $false
 $ConnectTab.Controls.Add($usernameLabel)
 
 # Create a TextBox for the username
 $usernameTextBox = New-Object System.Windows.Forms.TextBox
 $usernameTextBox.Location = New-Object System.Drawing.Point(100, 200)
-$usernameTextBox.Size = New-Object System.Drawing.Size(150, 20)
+$usernameTextBox.Size = New-Object System.Drawing.Size(175, 20)
+$usernameTextBox.Visible = $false
 $ConnectTab.Controls.Add($usernameTextBox)
 
 # Create a label for the password
@@ -169,13 +171,15 @@ $passwordLabel = New-Object System.Windows.Forms.Label
 $passwordLabel.Text = "Password:"
 $passwordLabel.Location = New-Object System.Drawing.Point(10, 225)
 $passwordLabel.autosize = $true
+$passwordLabel.Visible = $false
 $ConnectTab.Controls.Add($passwordLabel)
 
 # Create a TextBox for the password
 $passwordTextBox = New-Object System.Windows.Forms.TextBox
 $passwordTextBox.Location = New-Object System.Drawing.Point(100, 225)
-$passwordTextBox.Size = New-Object System.Drawing.Size(150, 20)
+$passwordTextBox.Size = New-Object System.Drawing.Size(175, 20)
 $passwordTextBox.UseSystemPasswordChar = $true
+$passwordTextBox.Visible = $false
 $ConnectTab.Controls.Add($passwordTextBox)
 
 # Create a label for the PIN (for Smart Card authentication)
