@@ -88,6 +88,27 @@ function Update_Label {
 Query_Computer_Info
 Update_Label
 
+function Connect_Via_PSRemoting ([string]$Hostname) {
+    $Port = "DEFAULT"
+    if ($Hostname -contains ":") {
+        $Only_Hostname = $Hostname.Split(":")[0]
+        $Port = $Hostname.Split(":")[1]
+    }
+    try {
+        if ($Port -ne "DEFAULT") {
+            $Global:Session = New-PSSession -ComputerName $Only_Hostname -Port $Port
+        } else {
+            $Global:Session = New-PSSession -ComputerName $Hostname
+        }
+        return $true
+    }
+    catch {
+        Write-Host "Connection Failed"
+        $Global:Session = $null
+        return $false
+    }
+}
+
 # ------------------------------------------------------------------------------------------------
 # --------------------------------------- CONNECT TAB --------------------------------------------
 # ------------------------------------------------------------------------------------------------
@@ -102,44 +123,57 @@ $label.AutoSize = $true
 $label.Location = New-Object System.Drawing.Point(10, 15)
 $ConnectTab.Controls.Add($label)
 
+# Create a label for the hostname
+$HostLabel = New-Object System.Windows.Forms.Label
+$HostLabel.text = "Hostname:"
+$HostLabel.Location = New-Object System.Drawing.Point(10,148)
+$HostLabel.AutoSize = $true
+$ConnectTab.Controls.Add($HostLabel)
+
+# Create a textbox for the hostname
+$HostTextBox = New-Object System.Windows.Forms.TextBox
+$HostTextBox.Location = New-Object System.Drawing.Point(100, 148)
+$HostTextBox.Size = New-Object System.Drawing.Size(150, 20)
+$ConnectTab.Controls.Add($HostTextBox)
+
 # Create a label for the authentication method
 $authLabel = New-Object System.Windows.Forms.Label
 $authLabel.Text = "Auth Method:"
-$authLabel.Location = New-Object System.Drawing.Point(10, 150)
+$authLabel.Location = New-Object System.Drawing.Point(10, 175)
 $authLabel.AutoSize = $true
 $ConnectTab.Controls.Add($authLabel)
 
 # Create a ComboBox for authentication methods
 $authComboBox = New-Object System.Windows.Forms.ComboBox
-$authComboBox.Items.AddRange(@("Password", "SSH Key", "OAuth", "Smart Card"))
+$authComboBox.Items.AddRange(@("PS-Remoting (Def Creds)", "PS-Remoting (Alt Creds)", "SSH Key", "OAuth", "Smart Card"))
 $authComboBox.SelectedIndex = 0
-$authComboBox.Location = New-Object System.Drawing.Point(80, 148)
-$authComboBox.Size = New-Object System.Drawing.Size(100, 20)
+$authComboBox.Location = New-Object System.Drawing.Point(100, 173)
+$authComboBox.Size = New-Object System.Drawing.Size(175, 20)
 $ConnectTab.Controls.Add($authComboBox)
 
 # Create a label for the username
 $usernameLabel = New-Object System.Windows.Forms.Label
 $usernameLabel.Text = "Username:"
-$usernameLabel.Location = New-Object System.Drawing.Point(10, 175)
+$usernameLabel.Location = New-Object System.Drawing.Point(10, 200)
 $usernameLabel.AutoSize = $true
 $ConnectTab.Controls.Add($usernameLabel)
 
 # Create a TextBox for the username
 $usernameTextBox = New-Object System.Windows.Forms.TextBox
-$usernameTextBox.Location = New-Object System.Drawing.Point(80, 175)
+$usernameTextBox.Location = New-Object System.Drawing.Point(100, 200)
 $usernameTextBox.Size = New-Object System.Drawing.Size(150, 20)
 $ConnectTab.Controls.Add($usernameTextBox)
 
 # Create a label for the password
 $passwordLabel = New-Object System.Windows.Forms.Label
 $passwordLabel.Text = "Password:"
-$passwordLabel.Location = New-Object System.Drawing.Point(10, 200)
+$passwordLabel.Location = New-Object System.Drawing.Point(10, 225)
 $passwordLabel.autosize = $true
 $ConnectTab.Controls.Add($passwordLabel)
 
 # Create a TextBox for the password
 $passwordTextBox = New-Object System.Windows.Forms.TextBox
-$passwordTextBox.Location = New-Object System.Drawing.Point(80, 200)
+$passwordTextBox.Location = New-Object System.Drawing.Point(100, 225)
 $passwordTextBox.Size = New-Object System.Drawing.Size(150, 20)
 $passwordTextBox.UseSystemPasswordChar = $true
 $ConnectTab.Controls.Add($passwordTextBox)
@@ -147,14 +181,14 @@ $ConnectTab.Controls.Add($passwordTextBox)
 # Create a label for the PIN (for Smart Card authentication)
 $pinLabel = New-Object System.Windows.Forms.Label
 $pinLabel.Text = "PIN:"
-$pinLabel.Location = New-Object System.Drawing.Point(10, 175)
+$pinLabel.Location = New-Object System.Drawing.Point(10, 200)
 $pinLabel.AutoSize = $true
 $pinLabel.Visible = $false
 $ConnectTab.Controls.Add($pinLabel)
 
 # Create a TextBox for the PIN (for Smart Card authentication)
 $pinTextBox = New-Object System.Windows.Forms.TextBox
-$pinTextBox.Location = New-Object System.Drawing.Point(80, 175)
+$pinTextBox.Location = New-Object System.Drawing.Point(100, 200)
 $pinTextBox.UseSystemPasswordChar = $true
 $pinTextBox.Visible = $false
 $ConnectTab.Controls.Add($pinTextBox)
@@ -162,7 +196,7 @@ $ConnectTab.Controls.Add($pinTextBox)
 # Event handler for authentication method selection
 $authComboBox.add_SelectedIndexChanged({
     switch ($authComboBox.SelectedItem) {
-        "Password" {
+        "PS-Remoting (Alt Creds)" {
             $usernameLabel.Visible = $true
             $usernameTextBox.Visible = $true
             $passwordLabel.Visible = $true
@@ -194,8 +228,44 @@ $authComboBox.add_SelectedIndexChanged({
             $pinLabel.Visible = $true
             $pinTextBox.Visible = $true
         }
+        "PS-Remoting (Def Creds)" {
+            $usernameLabel.Visible = $false
+            $usernameTextBox.Visible = $false
+            $passwordLabel.Visible = $false
+            $passwordTextBox.Visible = $false
+            $pinLabel.Visible = $false
+            $pinTextBox.Visible = $false
+        }
     }
 })
+
+# Create a button for connect/disconnect
+$connectButton = New-Object System.Windows.Forms.Button
+$connectButton.Text = "Connect"
+$connectButton.Location = New-Object System.Drawing.Point(10, 260)
+$connectButton.Size = New-Object System.Drawing.Size(100, 30)
+$connectButton.Add_Click({
+    if ($connectButton.Text -eq "Connect") {
+        $connectButton.Text = "Connecting..."
+        $connectButton.Enabled = $false
+        $result = Connect_Via_PSRemoting $HostTextBox.Text
+        if ($result) {
+            $connectButton.Text = "Disconnect"
+        } else {
+            $connectButton.Text = "Connect"
+        }
+    } else {
+        $connectButton.Text = "Disconnecting..."
+        $connectButton.Enabled = $false
+        Remove-PSSession -Session $Global:Session
+        $Global:Session = $null
+        $connectButton.Text = "Connect"
+    }
+    $connectButton.Enabled = $true
+    Query_Computer_Info
+    Update_Label
+})
+$ConnectTab.Controls.Add($connectButton)
 
 # ------------------------------------------------------------------------------------------------
 # --------------------------------------- SERVER TAB ---------------------------------------------
