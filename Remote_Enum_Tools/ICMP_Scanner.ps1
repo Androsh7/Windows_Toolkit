@@ -18,7 +18,7 @@ if ($input -match '(\d+\.){3}\d+-(\d+\.){3}\d+') {
     $machines = $input -split ","
 }
 
-# Function to ping a machine
+# Function to ping a machine 
 function Test-ICMP {
     param (
         [string]$Target

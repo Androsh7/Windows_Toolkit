@@ -39,19 +39,28 @@ try {
                 $tcpClient = $tcpListener.AcceptTcpClient()
                 $networkStream = $tcpClient.GetStream()
                 $buffer = New-Object byte[] 1024
-                $bytesRead = $networkStream.Read($buffer, 0, $buffer.Length)
-                $receivedData = [Text.Encoding]::ASCII.GetString($buffer, 0, $bytesRead)
-                $senderIP = $tcpClient.Client.RemoteEndPoint.Address.ToString()
-                $senderPort = $tcpClient.Client.RemoteEndPoint.Port
 
-                $date = Get-Date
-                Write-Host "----- RECEIVED FROM ${senderIP}:${senderPort} AT ${date} -----" -ForegroundColor Green
-                Write-Host "$receivedData"
+                while ($tcpClient.Connected) {
+                    $bytesRead = $networkStream.Read($buffer, 0, $buffer.Length)
+                    if ($bytesRead -gt 0) {
+                        $receivedData = [Text.Encoding]::ASCII.GetString($buffer, 0, $bytesRead)
+                        $senderIP = $tcpClient.Client.RemoteEndPoint.Address.ToString()
+                        $senderPort = $tcpClient.Client.RemoteEndPoint.Port
+
+                        $date = Get-Date
+                        Write-Host "----- RECEIVED FROM ${senderIP}:${senderPort} AT ${date} -----" -ForegroundColor Green
+                        Write-Host "$receivedData"
+                    } else {
+                        break
+                    }
+                }
 
                 $networkStream.Close()
                 $tcpClient.Close()
             }
-        } catch {}
+        } catch {
+            Write-Host "ERROR: An error occurred while processing the TCP client." -ForegroundColor Red
+        }
     }
 } finally {
     Write-Host "-------------------- Stopped listening on port ${port} -------------------" -ForegroundColor Cyan

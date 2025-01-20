@@ -16,6 +16,7 @@ function Enter_to_Exit {
     Read-Host
     Exit
 }
+
 function Start_TCP_Transmitter {
     try {
         # Get destination IP and port from user
@@ -40,7 +41,7 @@ function Start_TCP_Transmitter {
         $global:sock.Connect($End)
 
         # Mark transmitter as working
-        $global:transmitter = 1
+        $global:transmitter = $true
         
         Write-Host "Successfully started the TCP transmitter" -ForegroundColor Blue
         $Host.UI.RawUI.WindowTitle = "TCP ${dst_ip}:${dst_port} Transmitter"
@@ -74,21 +75,21 @@ function Transmit_TCP_Message {
         $Message
     )
     try {
-        # Create encoded buffer
-        $Enc = [System.Text.Encoding]::ASCII
-        $Buffer = $Enc.GetBytes($Message)
-
-        # Send the buffer via the established socket
         if ($Sock.Connected) {
+            # Create encoded buffer
+            $Enc = [System.Text.Encoding]::ASCII
+            $Buffer = $Enc.GetBytes($Message)
+
+            # Send the buffer via the established socket
             $Sock.Send($Buffer)
+
+            # Informational message for length
+            $length = $Message.Length
+            $date = Get-Date -UFormat "%m/%d/%Y %R UTC%Z"
+            Write-Host "SENT ${length} Characters AT ${date}" -ForegroundColor Green
         } else {
             Write-Host "ERROR: Socket is not connected" -ForegroundColor Red
         }
-
-        # Informational message for length
-        $length = $Message.Length
-        $date = Get-Date -UFormat "%m/%d/%Y %R UTC%Z"
-        Write-Host "SENT ${length} Characters AT ${date}" -ForegroundColor Green
     }
     catch {
         Write-Host "ERROR: could not send message" -ForegroundColor Red
