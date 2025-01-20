@@ -51,15 +51,16 @@ while ($true) {
         $new_job = New-Object -TypeName psobject
         $new_job | Add-Member -MemberType NoteProperty -Name "Port" -Value $ports[$i]
         $job = Start-Job -Name "TCP_SCANNER_JOB" -ScriptBlock {
+            param ($target, $port)
             $tcpClient = New-Object System.Net.Sockets.TcpClient
             try {
-                $tcpClient.Connect($target, $ports[$i])
+                $tcpClient.Connect($target, $port)
                 $tcpClient.Close()
                 return $true
             } catch {
                 return $false
             }
-        }
+        } -ArgumentList $target, $ports[$i]
         $new_job | Add-Member -MemberType NoteProperty -Name "Job" -Value $job
         $active_jobs += $new_job
         if ($debug) { Write-Host "Created Job ID: $($job.Id) out of $($active_jobs.Length)" }
