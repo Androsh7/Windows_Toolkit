@@ -27,6 +27,8 @@ $form = New-Object System.Windows.Forms.Form
 $form.Text = "Windows Toolkit"
 $form.Size = New-Object System.Drawing.Size(500, 400)
 $form.StartPosition = "CenterScreen"
+$form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::FixedDialog
+$form.MaximizeBox = $false
 
 $form.Controls.Add($tabControl)
 
