@@ -30,11 +30,17 @@ $form.StartPosition = "CenterScreen"
 
 $form.Controls.Add($tabControl)
 
+
+# Import the icon
+$icon = New-Object System.Drawing.Icon("$PSScriptRoot\icon.ico")
+$form.Icon = $icon
+
 # ------------------------------------------------------------------------------------------------
 # -------------------------------------- VARIABLES -----------------------------------------------
 # ------------------------------------------------------------------------------------------------
 
 # Connection Information:
+$label = New-Object System.Windows.Forms.Label
 $Username = "User"
 $Sid = "SID"
 $Hostname = "Host"
@@ -114,10 +120,8 @@ function Connect_Via_PSRemoting ([string]$Hostname) {
 # ------------------------------------------------------------------------------------------------
 
 # Create a label
-$label = New-Object System.Windows.Forms.Label
 $label.Text = ""
 Update_Label
-$label.TextAlign = [System.Drawing.ContentAlignment]::Left
 $label.Size = New-Object System.Drawing.Size(300, 20)
 $label.AutoSize = $true
 $label.Location = New-Object System.Drawing.Point(10, 15)
@@ -354,7 +358,7 @@ $ICMP_Scanner.Text = "ICMP Scanner"
 $ICMP_Scanner.Location = New-Object System.Drawing.Point(10, 40)
 $ICMP_Scanner.Size = New-Object System.Drawing.Size(90, 30)
 $ICMP_Scanner.Add_Click({
-    Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -executionpolicy Bypass -File ./Remote_Enum_Tools/ICMP_Scanner.ps1"
+    Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -executionpolicy Bypass -File ${PSScriptRoot}/Remote_Enum_Tools/ICMP_Scanner.ps1"
 })
 $NetworkTab.Controls.Add($ICMP_Scanner)
 
@@ -364,7 +368,7 @@ $TCP_Scanner.Text = "TCP Scanner "
 $TCP_Scanner.Location = New-Object System.Drawing.Point(10, 80)
 $TCP_Scanner.Size = New-Object System.Drawing.Size(90, 30)
 $TCP_Scanner.Add_Click({
-    Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -executionpolicy Bypass -File ./Remote_Enum_Tools/TCP_Full_Connect_Scanner.ps1"
+    Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -executionpolicy Bypass -File ${PSScriptRoot}/Remote_Enum_Tools/TCP_Full_Connect_Scanner.ps1"
 })
 $NetworkTab.Controls.Add($TCP_Scanner)
 
@@ -382,7 +386,7 @@ $TCP_Transmitter.Text = "TCP Transmitter"
 $TCP_Transmitter.Location = New-Object System.Drawing.Point(120, 40)
 $TCP_Transmitter.Size = New-Object System.Drawing.Size(120, 30)
 $TCP_Transmitter.Add_Click({
-    Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -executionpolicy Bypass -File ./Transmitters/TCP_Transmitter.ps1"
+    Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -executionpolicy Bypass -File ${PSScriptRoot}/Transmitters/TCP_Transmitter.ps1"
 })
 $NetworkTab.Controls.Add($TCP_Transmitter)
 
@@ -392,7 +396,7 @@ $UDP_Transmitter.Text = "UDP Transmitter"
 $UDP_Transmitter.Location = New-Object System.Drawing.Point(120, 80)
 $UDP_Transmitter.Size = New-Object System.Drawing.Size(120, 30)
 $UDP_Transmitter.Add_Click({
-    Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -executionpolicy Bypass -File ./Transmitters/UDP_Transmitter.ps1"
+    Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -executionpolicy Bypass -File ${PSScriptRoot}/Transmitters/UDP_Transmitter.ps1"
 })
 $NetworkTab.Controls.Add($UDP_Transmitter)
 
@@ -410,7 +414,7 @@ $TCP_Receiver.Text = "TCP Receiver"
 $TCP_Receiver.Location = New-Object System.Drawing.Point(260, 40)
 $TCP_Receiver.Size = New-Object System.Drawing.Size(100, 30)
 $TCP_Receiver.Add_Click({
-    Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -executionpolicy Bypass -File ./Receivers/TCP_Receiver.ps1"
+    Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -executionpolicy Bypass -File ${PSScriptRoot}/Receivers/TCP_Receiver.ps1"
 })
 $NetworkTab.Controls.Add($TCP_Receiver)
 
@@ -420,7 +424,7 @@ $UDP_Receiver.Text = "UDP Receiver"
 $UDP_Receiver.Location = New-Object System.Drawing.Point(260, 80)
 $UDP_Receiver.Size = New-Object System.Drawing.Size(100, 30)
 $UDP_Receiver.Add_Click({
-    Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -executionpolicy Bypass -File ./Receivers/UDP_Receiver.ps1"
+    Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -executionpolicy Bypass -File ${PSScriptRoot}/Receivers/UDP_Receiver.ps1"
 })
 $NetworkTab.Controls.Add($UDP_Receiver)
 
