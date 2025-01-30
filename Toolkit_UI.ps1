@@ -52,7 +52,7 @@ $WorkingDirectory = "Working Directory"
 
 # Connection Credentials:
 $StoredCredential = $null
-$Session = $null
+[System.Management.Automation.Runspaces.PSSession]$Session = $null
 $SessionId = "None"
 $SessionStatus = "Disconnected"
 
@@ -276,6 +276,30 @@ $connectButton.Add_Click({
     Update_Label
 })
 $ConnectTab.Controls.Add($connectButton)
+
+# ------------------------------------------------------------------------------------------------
+# --------------------------------------- REMOTE TAB ---------------------------------------------
+# ------------------------------------------------------------------------------------------------
+
+# Create a button to start the remote shell
+$RemoteShellButton = New-Object System.Windows.Forms.Button
+$RemoteShellButton.Text = "Remote Shell"
+$RemoteShellButton.Location = New-Object System.Drawing.Point(10, 10)
+$RemoteShellButton.Size = New-Object System.Drawing.Size(120, 30)
+$RemoteShellButton.Add_Click({
+    Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -NoExit -executionpolicy Bypass -Command `"`$env:Session = ${Global:Session}; . '${PSScriptRoot}\Remote_Tools\remote_shell.ps1' ${sessionId}`""
+})
+$RemoteTab.Controls.Add($RemoteShellButton)
+
+# Create a button to start the Enter-PSSession script
+$EnterPSSessionButton = New-Object System.Windows.Forms.Button
+$EnterPSSessionButton.Text = "Enter-PSSession"
+$EnterPSSessionButton.Location = New-Object System.Drawing.Point(10, 50)
+$EnterPSSessionButton.Size = New-Object System.Drawing.Size(120, 30)
+$EnterPSSessionButton.Add_Click({
+    Start-Process -FilePath "powershell.exe"  -EnvironmentVariable @{"SessionId" = [System.Management.Automation.Runspaces.PSSession]$Global:Session} -ArgumentList "-NoExit", "-Command", "Enter-PSSession -Session `$SessionId -LoadUserProfile" 
+})
+$RemoteTab.Controls.Add($EnterPSSessionButton)
 
 # ------------------------------------------------------------------------------------------------
 # --------------------------------------- SERVER TAB ---------------------------------------------

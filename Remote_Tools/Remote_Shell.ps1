@@ -1,11 +1,13 @@
 param (
-    [string]$sessionId
+    [int]$sessionId
 )
 $Host.UI.RawUI.WindowTitle = "Remote Shell"
 
 if (-not $sessionId) {
     $sessionId = Read-Host -Prompt "Enter the PS session id"
 }
+
+$session = Get-PSSession -Id $sessionId -ErrorAction SilentlyContinue
 
 function Fake_Loading ([int]$milliseconds_per, [int]$repetitions) {
     for ($i = 0; $i -lt $repetitions; $i++) {
@@ -15,12 +17,11 @@ function Fake_Loading ([int]$milliseconds_per, [int]$repetitions) {
 }
 
 # Test the session to ensure validity
-$session = Get-PSSession -Id $sessionId -ErrorAction SilentlyContinue
 if ($session -and $session.State -eq "Opened") {
     Write-Host "Session established with $($session.ComputerName)" -ForegroundColor Green
-    $Host.UI.RawUI.WindowTitle = "Remote Shell - $($session.ComputerName) - Session ID: $sessionId"
+    $Host.UI.RawUI.WindowTitle = "Remote Shell - $($session.ComputerName) - Session ID: $($session.Id)"
 } else {
-    Write-Host "Session could not be established (ID: $sessionid)" -ForegroundColor Red
+    Write-Host "Session could not be established" -ForegroundColor Red
     Write-Host "Press ENTER to exit" -NoNewline -ForegroundColor Red
     Read-Host 
     Exit
@@ -35,26 +36,31 @@ function Run_Remote_Command ([string]$cmd) {
             Invoke-Expression $cmd
         } -ArgumentList $cmd
     } else {
-        Write-Host "Session $sessionId is closed" -ForegroundColor Red
+        Write-Host "Session $($session.Id) is closed" -ForegroundColor Red
         return $null
     }
-    
 }
+
 # commands
 
 # finds all "explorer.exe" processes and gets the user and domain of the owner
-# NOTE: this grabs all active users on the machine with the exception of users who are remoted in via RDP or connected via PSRemoting
+# NOTE: this grabs all active users on the machine
 $GET_GUI_USERS = {
-    Get-CimInstance Win32_Process -Filter "name = 'explorer.exe'" | ForEach-Object { 
-        Invoke-CimMethod -InputObject $_ -MethodName GetOwner | Select-Object User, Domain 
+    $current_date = $(get-date)
+    Get-CimInstance Win32_Process -Filter "name LIKE 'explorer.exe'" | ForEach-Object { 
+        $output = Invoke-CimMethod -InputObject $_ -MethodName GetOwner | Select-Object User, Domain
+        $uptime = New-Timespan -start $_.CreationDate -End $current_date
+        $uptime_formatted = $uptime.ToString("dd\:hh\:mm\:ss")
+        $output | Add-Member -MemberType NoteProperty -Name Uptime -Value $uptime_formatted
+        $output
     }
 }
 # this just grabs all the local and domain accounts on the machine
 $GET_USERS = {
-    Get-CimInstance Win32_UserAccount | Select-Object Name, Domain, SID
+    Get-CimInstance Win32_UserAccount | Select-Object Name, Domain, Disabled, SID | Sort-Object -Property Disabled
 }
 
-# this detects all users (including runas) processes and their sessions
+# this detects all users including runas processes and their sessions
 # NOTE: this requires admin privileges
 $GET_SESSIONS_ADMIN = {
     $sessions = @()
@@ -77,28 +83,28 @@ $GET_SESSIONS = {
     Get-CimInstance Win32_Process | Sort-Object -Property SessionId -Unique | ForEach-Object {
         $session_info = New-Object PSObject
         $session_info | Add-Member -MemberType NoteProperty -Name "SessionId" -Value $_.SessionId
-        owner = Invoke-CimMethod -InputObject $_ -MethodName GetOwner
+        $owner = Invoke-CimMethod -InputObject $_ -MethodName GetOwner
         if ($_.SessionId -eq 0) {
-            $owner.User = "ROOT PROCESS"
+            $owner.User = "ROOT"
             $owner.Domain = "N/A"
         }
         $session_info | Add-Member -MemberType NoteProperty -Name "User" -Value $owner.User
         $session_info | Add-Member -MemberType NoteProperty -Name "Domain" -Value $owner.Domain
-        $sessions += $session_info
+        $sessions += $session_info 
     }
-    return $sessions
+    $sessions | Select-Object User, Domain, SessionId | Sort-Object -Property SessionId
 }
 
 # Begin the remote shell
 function Print_Header {
-    Write-Host "----- Remote Shell $($session.ComputerName) ID-$sessionid ------" -ForegroundColor Cyan
+    Write-Host "----- Remote Shell $($session.ComputerName) ID-$($session.Id) ------" -ForegroundColor Cyan
     Write-Host "----- Type #help for a list of commands -----" -ForegroundColor Cyan
 }
 
 Print_Header
 $exit = $false
 while (-not $exit) {
-    Write-Host "PS $($session.ComputerName) ID-$sessionId" -NoNewline
+    Write-Host "PS $($session.ComputerName) ID-$($session.Id)" -NoNewline
     if ($session.State -eq "Opened") { 
         Write-Host " CONNECTED" -ForegroundColor Green -NoNewline
     } else {
@@ -145,7 +151,7 @@ while (-not $exit) {
                 if ($session.State -ne "Opened") { $color = "Red" }
                     Write-Host "$($session.State)" -ForegroundColor $color
                 Write-Host "Session ID: "-NoNewline -ForegroundColor Yellow
-                    Write-Host "$sessionId"
+                    Write-Host "$($session.Id)"
                 Write-Host "Connected to: " -NoNewline -ForegroundColor Yellow
                     Write-Host "$($session.ComputerName)"
             }
@@ -186,8 +192,8 @@ while (-not $exit) {
                 }
             }
             "kill" {
-                Remove-PSSession -Id $sessionId
-                Write-Host "Session $sessionId killed successfully" -ForegroundColor Green
+                Remove-PSSession -Session $session
+                Write-Host "Session $($session.Id) killed successfully" -ForegroundColor Green
             }
             Default {
                 Write-Host "Unknown command: $cmd" -ForegroundColor Red
@@ -211,15 +217,15 @@ while (-not $exit) {
             Invoke-Expression $cmd
         } -ArgumentList $cmd
     } else {
-        Write-Host "Session $sessionId is closed" -ForegroundColor Red
+        Write-Host "Session $($session.Id) is closed" -ForegroundColor Red
     }
 }
 
 Write-Host "Would you like to kill the session? (Y/N): " -NoNewline
 $kill = Read-Host
 if ($kill -eq "Y" -or $kill -eq "y") {
-    Remove-PSSession -Id $sessionId
-    Write-Host "Session $sessionId killed" -ForegroundColor Green -NoNewline
+    Remove-PSSession -Session $session
+    Write-Host "Session $($session.Id) killed" -ForegroundColor Green -NoNewline
 } else {
-    Write-Host "Quiting without killing the session" -ForegroundColor Yellow -NoNewline
+    Write-Host "Quitting without killing the session" -ForegroundColor Yellow -NoNewline
 }
