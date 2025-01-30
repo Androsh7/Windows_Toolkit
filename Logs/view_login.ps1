@@ -8,7 +8,7 @@ Write-Host "----- Querying Security logs for User ${UserFilter} in the past ${Lo
 $CurrentDate = Get-Date
 
 # Description: This script will parse the security event log for login events and display them in a readable format.
-Get-WinEvent -LogName "security" | Where-Object {$_.Id -match "462[45]|472[34]|4740"} | ForEach-Object {
+Get-WinEvent -LogName "security" | Where-Object {$_.Id -in 4624, 4625, 4723, 4724, 4740 } | ForEach-Object {
     # Build XML object
     $event_xml = [xml]$_.ToXml()
 
@@ -37,7 +37,7 @@ Get-WinEvent -LogName "security" | Where-Object {$_.Id -match "462[45]|472[34]|4
     if ($ignore) { return }
 
     # Event ID 4624 and 4625 (Login Success/Failure)
-    if ($_.Id -match "462[45]") {
+    if ($_.Id -eq 4624 -or $_.Id -eq 4625) {
 
         # build IP address and port variables
         $IpAddress = ($event_xml.Event.EventData.ChildNodes | Where-Object { $_.Name -eq "IpAddress"}).InnerText
@@ -53,7 +53,7 @@ Get-WinEvent -LogName "security" | Where-Object {$_.Id -match "462[45]|472[34]|4
         else                { Write-Host "Login Failure    - ${TimeCreated} - ${IpAddress}:${IpPort} --> ${TargetDomain}\${TargetUser}" -ForegroundColor Red }
     }
     # Event ID 4723 and 4724 (Password Reset)
-    elseif ($_.Id -match "472[34]") {
+    elseif ($_.Id -eq 4723 -or $_.ID -eq 4724) {
 
         $Status = ($event_xml.Event.EventData.ChildNodes | Where-Object { $_.Name -eq "Status"}).InnerText
         $StatusMessage = ""
