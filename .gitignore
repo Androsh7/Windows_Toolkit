@@ -2,5 +2,4 @@
 .vscode
 
 # application specific
-Logs/*
 *.csv
