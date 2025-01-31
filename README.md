@@ -1,7 +1,7 @@
 # Windows Toolkit
-This project is still a Work in Progress
+This is a Windows Toolkit for written exclusively in powershell (and a bit of html) with no external libraries.
 
-Don't expect everything here to work
+The purpose of this toolkit is to provide a simple replication of many common networking and basic sysadmin which can be used in enviornments where no external libraries or languages can be installed. 
 
 # Features:
 - [x] Transmitters
