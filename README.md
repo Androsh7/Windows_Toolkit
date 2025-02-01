@@ -1,8 +1,7 @@
 # Windows Toolkit
 This is a Windows Toolkit for written exclusively in powershell (and a bit of html) with no external libraries.
 
-The purpose of this toolkit is to provide a simple replication of many common networking and basic sysadmin which can be used in enviornments where no external libraries or languages can be installed. 
-
+The purpose of this toolkit is to provide a simple replication of many common networking and basic sysadmin tools which can be used in a stock windows environment without administrator permissions.
 # Features:
 - [x] Transmitters
     - [X] UDP
