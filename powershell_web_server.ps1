@@ -20,9 +20,9 @@ $SitePages = New-PSDrive -Name SitePages -PSProvider FileSystem -Root "${PSScrip
 if (Get-PSDrive -Name "Files" -ErrorAction SilentlyContinue) { Remove-PSDrive -Name Files }
 $Files = New-PSDrive -Name Files -PSProvider FileSystem -Root "${PSScriptRoot}\Files\"
 
-# Serves a HTML page to the host
+# Serves an HTML page to the host
 function Serve_HTML ([string]$Path) {
-    $Path = $Path.Replace('/','\')
+    $Path = $Path.Replace('/','\') # convert from web pathing to windows pathing
     if ($Null -eq $Path) {
         Write-Host "Serve_HTML insufficient Parameters provided" -ForegroundColor Red
         return
@@ -32,15 +32,17 @@ function Serve_HTML ([string]$Path) {
     if (test-path -Path "$Path" -PathType Leaf) {
         Write-Host "Valid Path" -ForegroundColor Green
         $responseString = get-content -path $Path
+        $global:response.StatusCode = 200
+        $global:response.StatusDescription = "OK"
     } else {
         Write-Host "Invalid Path" -ForegroundColor Red
         $responseString = get-content -path "${PSScriptRoot}\Redirect\404.html"
+        $global:response.StatusCode = 400
+        $global:response.StatusDescription = "Not Found"
     }
     $buffer = [Text.Encoding]::UTF8.GetBytes($responseString)
     $global:response.ContentLength64 = $buffer.Length
     $global:response.OutputStream.Write($buffer, 0, $buffer.Length)
-    $global:response.StatusCode = 200
-    $global:response.StatusDescription = "OK"
     $global:response.OutputStream.Close()
 }
 
@@ -65,7 +67,7 @@ function 500_Internal_Server_Error {
 
 # Serves a File to the host
 function Serve_File ($Path, $Type) {
-    $Path = $Path.Replace('/','\')
+    $Path = $Path.Replace('/','\') # convert from web pathing to windows pathing
     if ($Null -eq $Path -or $Null -eq $Type) {
         Write-Host "Serve_File insufficient Parameters provided" -ForegroundColor Red
         return
@@ -111,6 +113,40 @@ function Start_Script ([string]$script_name) {
     $global:response.OutputStream.Close()
 }
 
+
+$web_formatting = @(
+    #  code, replace char
+    @("+"  , " "),
+    @("%2B", "+"),
+    @("%20", " "),
+    @("%40", "@"),
+    @("%3A", ":"),
+    @("%2F", "/"),
+    @("%3F", "?"),
+    @("%23", "#"),
+    @("%26", "&"),
+    @("%25", "%")
+)
+# this removes web formatting like %20 and replaces it with an ASCII char
+function remove_web_formatting ([string]$web_string) {
+    $web_formatting | ForEach-Object {
+        $web_string = $web_string.Replace($_[0], $_[1])
+    }
+    return $web_string
+}
+
+# this grabs the results of a form submission and returns it as a PS Object
+function read_form_submission ([string]$form_attributes) {
+    $attributes = $form_attributes.split('&')
+    $out_dict = New-Object psobject
+    $attributes | foreach-object {
+        $attribute_name = remove_web_formatting -web_string $_.Split('=')[0]
+        $attribute_value = remove_web_formatting -web_string $_.Split('=')[1]
+        $out_dict | Add-Member -MemberType NoteProperty -Name $attribute_name -Value $attribute_value
+    }
+    return $out_dict
+}
+
 while ($listener.IsListening) {
     # wait for an incoming request
     $global:context = $listener.GetContext()
@@ -126,6 +162,19 @@ while ($listener.IsListening) {
     # Default actions
     if     ($request.RawUrl -eq "favicon.ico") { Serve_File "Files:\\favicon.ico" "image/x-icon" }
     elseif ($request.RawUrl -eq "/") { Serve_HTML "SitePages:\\index.html" }
+    elseif ($request.RawUrl -match "\?") {
+        switch ($request.RawUrl.Split('?')[0]) {
+            "/Server_Management/Domain_User_Query.html" {
+                $query_attributes = read_form_submission $request.RawUrl.Split('?')[1]
+                $query_attributes
+            }
+            Default { 
+                write-Host "Bad Query" -ForegroundColor Red
+                405_Method_Not_Allowed 
+            }
+        }
+        
+    }
     elseif ($request.RawUrl -match "\.ps1$") {
         $script_list | ForEach-Object {
             if ($request.RawUrl -eq "/$_") {
@@ -152,6 +201,12 @@ while ($listener.IsListening) {
     else {
         switch ($request.RawUrl) {
             "/Shutdown" { Shutdown_Actions }
+            "/CMD_User" { Start-Process -FilePath "conhost.exe" -ArgumentList "cmd.exe -NoExit -executionpolicy Bypass" }
+            "/CMD_Admin" { Start-Process -FilePath "conhost.exe" -ArgumentList "cmd.exe -NoExit -executionpolicy Bypass" -Verb Runas}
+            "/Powershell_User" { Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -NoExit -executionpolicy Bypass"}
+            "/Powershell_Admin"{ Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -NoExit -executionpolicy Bypass" -Verb Runas}
+            "/Enter_PSSession_Admin" { Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -NoExit -executionpolicy Bypass -Command Enter-PSSession" -Verb Runas }
+            "/Enter_PSSession_User" { Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -NoExit -executionpolicy Bypass -Command Enter-PSSession" }
             Default { 405_Method_Not_Allowed }
         }
     }

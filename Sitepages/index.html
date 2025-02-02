@@ -66,6 +66,19 @@
         .column ul li {
             margin: 10px 0;
         }
+        .ps1-button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -75,30 +88,45 @@
             <ul>
                 <li><a href="/Server_Management/Domain_User_Query.html">Query Domain Users</a></li>
                 <li><a href="/Server_Management/Domain_Computer_Query.html">Query Domain Computers</a></li>
-                <li><a href="/Server_Management/Get_Server_Status">Get Server Status</a></li>
             </ul>
         </div>
         <div class="column">
             <h2>Local Tools</h2>
             <ul>
-                <li><a href="/SystemInfo.ps1">Systeminfo</a></li>
-                <li><a href="/local_backup.html">Local Backup</a></li>
-                <li><a href="/local_monitor.html">Local Monitor</a></li>
+                <li><button class="ps1-button" onclick="fetch('/SystemInfo.ps1')">Systeminfo</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/CMD_User')">CMD (User)</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/CMD_Admin')">CMD (Admin)</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Powershell_User')">Powershell (User)</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Powershell_Admin')">Powershell (Admin)</button></li>
             </ul>
         </div>
         <div class="column">
             <h2>Remote Tools</h2>
             <ul>
-                <li><a href="/remote_toolkit.html">Remote Toolkit</a></li>
-                <li><a href="/remote_access.html">Remote Access</a></li>
-                <li><a href="/remote_support.html">Remote Support</a></li>
+                <li><button class="ps1-button" onclick="fetch('/Remote_Shell.ps1')">Remote Terminal (shell)</button></li>
+                <li><button class="ps1-button" onclick="fetch('/Enter_PSSession_User')">Enter-PSSession User (shell)</button></li>
+                <li><button class="ps1-button" onclick="fetch('/Enter_PSSession_Admin')">Enter-PSSession Admin (shell)</button></li>
             </ul>
         </div>
         <div class="column">
             <h2>Network Tools</h2>
             <ul>
-                <li><a href="/TCP_Scanner.ps1">TCP Scanner (shell)</a></li>
-                <li><a href="/ICMP_Scanner.ps1">UDP Scanner (shell)</a></li>
+                <li><button class="ps1-button" onclick="fetch('/TCP_Scanner.ps1')">TCP Scanner (shell)</button></li>
+                <li><button class="ps1-button" onclick="fetch('/ICMP_Scanner.ps1')">UDP Scanner (shell)</button></li>
+            </ul>
+        </div>
+        <div class="column">
+            <h2>Transmitters</h2>
+            <ul>
+                <li><button class="ps1-button" onclick="fetch('/TCP_Transmitter.ps1')">TCP Transmitter (shell)</button></li>
+                <li><button class="ps1-button" onclick="fetch('/UDP_Transmitter.ps1')">UDP Transmitter (shell)</button></li>
+            </ul>
+        </div>
+        <div class="column">
+            <h2>Receivers</h2>
+            <ul>
+                <li><button class="ps1-button" onclick="fetch('/TCP_Receiver.ps1')">TCP Receiver (shell)</button></li>
+                <li><button class="ps1-button" onclick="fetch('/UDP_Receiver.ps1')">UDP Receiver (shell)</button></li>
             </ul>
         </div>
     </div>

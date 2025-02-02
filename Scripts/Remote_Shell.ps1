@@ -1,13 +1,25 @@
-param (
-    [int]$sessionId
-)
 $Host.UI.RawUI.WindowTitle = "Remote Shell"
 
-if (-not $sessionId) {
-    $sessionId = Read-Host -Prompt "Enter the PS session id"
+$need_admin = $true
+
+# Check if the script is running as administrator
+$currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
+$principal = New-Object Security.Principal.WindowsPrincipal($currentUser)
+if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    if ($need_admin -eq $false) {
+        Write-Host "Current user is not an administrator. Ignoring" -ForegroundColor Yellow
+    } else {
+        Write-Host "Current user is not an administrator. Attempting to run with elevated permissions..." -ForegroundColor Yellow
+        Start-Process powershell -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs
+        Exit
+    }
+} else {
+    Write-Host "Running with administrator privileges." -ForegroundColor Green
 }
 
-$session = Get-PSSession -Id $sessionId -ErrorAction SilentlyContinue
+$Computer_Name = Read-Host "Computer Name"
+
+$session = New-PSSession -ComputerName $Computer_Name
 
 function Fake_Loading ([int]$milliseconds_per, [int]$repetitions) {
     for ($i = 0; $i -lt $repetitions; $i++) {
@@ -229,3 +241,4 @@ if ($kill -eq "Y" -or $kill -eq "y") {
 } else {
     Write-Host "Quitting without killing the session" -ForegroundColor Yellow -NoNewline
 }
+Start-Sleep 1

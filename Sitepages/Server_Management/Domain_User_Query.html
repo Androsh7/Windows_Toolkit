@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .home-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+        }
+        .power-button {
+            position: absolute;
+            top: 80px;
+            right: 10px;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+        }
+    </style>
+    <title>Domain User Query</title>
+</head>
+<body>
+    <h1>Domain User Query</h1>
+    <p>Leave blank to ignore</p>
+    <form id="userQueryForm" style="text-align: left; display: flex; flex-direction: column; align-items: left; max-width: 300px;">
+        <label for="username">Username:</label>
+        <input type="text" id="Username" name="username" style="width: 100%; height: 40px; font-size: 18px;">
+        <br>
+        <label for="firstName">First Name:</label>
+        <input type="text" id="firstName" name="firstName" style="width: 100%; height: 40px; font-size: 18px;">
+        <br>
+        <label for="lastName">Last Name:</label>
+        <input type="text" id="lastName" name="lastName" style="width: 100%; height: 40px; font-size: 18px;">
+        <br>
+        <label for="middleInitial">Middle Initial:</label>
+        <input type="text" id="middleInitial" name="middleInitial" style="width: 100%; height: 40px; font-size: 18px;">
+        <br>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" style="width: 100%; height: 40px; font-size: 18px;">
+        <br>
+        <input type="submit" value="Submit">
+    </form>
+    <div id="results" style="margin-left: 20px;"></div>
+    <a href="..\index.html"> <img src="..\home.png" alt="Home Button" class="home-button"> </a>
+    <img src="..\power.png" alt="Power Button" class="power-button" 
+         onclick="fetch('/shutdown')
+                    .then(response => { 
+                        if (response.ok) { 
+                            alert('Shutdown initiated');
+                            window.location.reload();
+                        } else { 
+                            alert('Failed to initiate shutdown'); 
+                        } 
+                    })
+                    .catch(error => { 
+                        alert('Error: ' + error); 
+                    });">
+</body>
+</html>
