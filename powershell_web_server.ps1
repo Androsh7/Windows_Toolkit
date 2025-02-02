@@ -2,7 +2,7 @@
 $listener = New-Object System.Net.HttpListener
 
 # Listening prefix
-$prefix = "http://127.0.0.1:9090/"
+$prefix = "http://127.0.0.1:9000/"
 $listener.Prefixes.Add($prefix)
 
 # Start the listener
@@ -32,18 +32,18 @@ function Serve_HTML ([string]$Path) {
     if (test-path -Path "$Path" -PathType Leaf) {
         Write-Host "Valid Path" -ForegroundColor Green
         $responseString = get-content -path $Path
-        $global:response.StatusCode = 200
-        $global:response.StatusDescription = "OK"
+        $response.StatusCode = 200
+        $response.StatusDescription = "OK"
     } else {
         Write-Host "Invalid Path" -ForegroundColor Red
         $responseString = get-content -path "${PSScriptRoot}\Redirect\404.html"
-        $global:response.StatusCode = 400
-        $global:response.StatusDescription = "Not Found"
+        $response.StatusCode = 400
+        $response.StatusDescription = "Not Found"
     }
     $buffer = [Text.Encoding]::UTF8.GetBytes($responseString)
-    $global:response.ContentLength64 = $buffer.Length
-    $global:response.OutputStream.Write($buffer, 0, $buffer.Length)
-    $global:response.OutputStream.Close()
+    $response.ContentLength64 = $buffer.Length
+    $response.OutputStream.Write($buffer, 0, $buffer.Length)
+    $response.OutputStream.Close()
 }
 
 # shorthand functions for redirects
@@ -73,27 +73,27 @@ function Serve_File ($Path, $Type) {
         return
     }
     Write-Host "Serving File `"$Path`" of type $Type - " -NoNewline
-    $global:response.ContentType = $Type
+    $response.ContentType = $Type
     if (Test-Path -Path "$Path" -PathType Leaf) {
         Write-Host "Valid Path" -ForegroundColor Green
         $imageBytes = [System.IO.File]::ReadAllBytes((Convert-Path "$Path"))
-        $global:response.ContentLength64 = $imageBytes.Length
-        $global:response.OutputStream.Write($imageBytes, 0, $imageBytes.Length)
-        $global:response.StatusCode = 200
-        $global:response.StatusDescription = "OK"
+        $response.ContentLength64 = $imageBytes.Length
+        $response.OutputStream.Write($imageBytes, 0, $imageBytes.Length)
+        $response.StatusCode = 200
+        $response.StatusDescription = "OK"
     } else {
         Write-Host "Invalid Path" -ForegroundColor Red
-        $global:response.StatusCode = 404
-        $global:response.StatusDescription = "Not Found"
+        $response.StatusCode = 404
+        $response.StatusDescription = "Not Found"
     }
-    $global:response.OutputStream.Close()
+    $response.OutputStream.Close()
 }
 
 function Shutdown_Actions {
     Write-Host "Shutting down the server" -ForegroundColor Red
-    $global:response.StatusCode = 200
-    $global:response.StatusDescription = "OK"
-    $global:response.OutputStream.Close()
+    $response.StatusCode = 200
+    $response.StatusDescription = "OK"
+    $response.OutputStream.Close()
     try {
         $listener.Stop()
         exit
@@ -107,10 +107,43 @@ function Shutdown_Actions {
 
 $script_list = (Get-ChildItem -Path "${PSScriptRoot}/Scripts/" -Filter "*.ps1").Name
 function Start_Script ([string]$script_name) {
-    Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -executionpolicy Bypass -File ${PSScriptRoot}/Scripts/${script_name}"
-    $global:response.StatusCode = 200
-    $global:response.StatusDescription = "OK"
-    $global:response.OutputStream.Close()
+    try {
+        Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -executionpolicy Bypass -File ${PSScriptRoot}/Scripts/${script_name}"
+        Write-Host "Starting Script ${script_name}"
+        $response.StatusCode = 200
+        $response.StatusDescription = "OK"
+        $response.OutputStream.Close()
+    }
+    catch {
+        Write-Host "Error attempting to run ${script_name}: $_" -ForegroundColor Red
+        $response.StatusCode = 500
+        $response.StatusDescription = "Internal Server Error"
+        $response.OutputStream.Close()
+    }
+}
+
+function Start_Program([string]$program_name, [bool]$noexit, [bool]$admin) {
+    if ($null -eq $program_name) {
+        Write-Host "No program name provided" -ForegroundColor Red
+        return
+    }
+    $argument_list = "${program_name} -executionpolicy bypass"
+    if ($noexit) { $argument_list += " -NoExit"}
+    try {
+        if ($admin) {
+            Start-Process -FilePath "conhost.exe" -ArgumentList $argument_list -Verb runas
+        } else {
+            Start-Process -FilePath "conhost.exe" -ArgumentList $argument_list
+        }
+        Write-Host "Started process ${program_name} as " -NoNewline
+        if ($admin) { Write-Host "administrator" }
+        else { Write-Host "user" }
+    }
+    catch {
+        Write-Host "Failed to start process ${program_name} as " -NoNewline -ForegroundColor Red
+        if ($admin) { Write-Host "administrator" -ForegroundColor Red }
+        else { Write-Host "user" -ForegroundColor Red }
+    }
 }
 
 
@@ -147,66 +180,70 @@ function read_form_submission ([string]$form_attributes) {
     return $out_dict
 }
 
+function respond_in_JSON ([string]$Raw_input) {
+    $jsonResult = $Raw_input | ConvertTo-Json
+    $buffer = [Text.Encoding]::UTF8.GetBytes($jsonResult)
+    $response.ContentType = "application/json"
+    $response.ContentLength64 = $buffer.Length
+    $response.OutputStream.Write($buffer, 0, $buffer.Length)
+    $response.OutputStream.Close()
+}
+
+function grab_JSON_input {
+    if ($request.InputStream.CanRead -eq $false) {
+        Write-Host "Input Stream Read Error" -ForegroundColor Red
+        return
+    }
+    $reader = New-Object System.IO.StreamReader($request.InputStream)
+    $requestBody = $reader.ReadToEnd()
+    $reader.Close()
+    return ConvertFrom-Json $requestBody
+}
+
 while ($listener.IsListening) {
     # wait for an incoming request
-    $global:context = $listener.GetContext()
-    $global:request = $context.Request
-    $global:response = $context.Response
+    $context = $listener.GetContext()
+    $request = $context.Request
+    $response = $context.Response
 
     # error printing
     Write-Host "User $($request.RemoteEndPoint) made request $($request.RawUrl)" -ForegroundColor Cyan
 
-    # checks against malicious activity
-    #if ($request.RawUrl -match "..|[^a-zA-Z0-9/\.]") { Serve_HTML ".\Redirect\403.html" $response; continue } # invalid characters
-    
     # Default actions
     if     ($request.RawUrl -eq "favicon.ico") { Serve_File "Files:\\favicon.ico" "image/x-icon" }
     elseif ($request.RawUrl -eq "/") { Serve_HTML "SitePages:\\index.html" }
-    elseif ($request.RawUrl -match "\?") {
-        switch ($request.RawUrl.Split('?')[0]) {
-            "/Server_Management/Domain_User_Query.html" {
-                $query_attributes = read_form_submission $request.RawUrl.Split('?')[1]
-                $query_attributes
-            }
-            Default { 
-                write-Host "Bad Query" -ForegroundColor Red
-                405_Method_Not_Allowed 
-            }
-        }
-        
-    }
-    elseif ($request.RawUrl -match "\.ps1$") {
-        $script_list | ForEach-Object {
-            if ($request.RawUrl -eq "/$_") {
-                Start_Script $_
-                continue
-            }
-        }
-        405_Method_Not_Allowed
-    }
     elseif ($request.RawUrl -match "\.\w+$") {
         $extension = $request.RawUrl.Split(".")[-1]
         switch ($extension) {
-            "html" { Serve_HTML "SitePages:\$($request.RawUrl)" }
+            "html" { Serve_HTML "SitePages:\$($request.RawUrl)"}
             "ico" { Serve_File "Files:\$($request.RawUrl)" "image/x-icon" }
             "png" { Serve_File "Files:\$($request.RawUrl)" "image/png" }
-            "jpg" { Serve_File "Files:\$($request.RawUrl)" "image/jpeg" }
-            "jpeg" { Serve_File "Files:\$($request.RawUrl)" "image/jpeg" }
-            "gif" { Serve_File "Files:\$($request.RawUrl)" "image/gif" }
-            "xml" { Serve_File "Files:\$($request.RawUrl)" "application/xml" }
-            "pdf" { Serve_File "Files:\$($request.RawUrl)" "application/pdf" }
+            "ps1" {
+                $script_list | ForEach-Object {
+                    if ($request.RawUrl -eq "/$_") {
+                        Start_Script $_
+                        continue
+                    }
+                }
+                404_Not_Found
+            }
             Default { 404_Not_Found }
         }
     }
     else {
         switch ($request.RawUrl) {
             "/Shutdown" { Shutdown_Actions }
-            "/CMD_User" { Start-Process -FilePath "conhost.exe" -ArgumentList "cmd.exe -NoExit -executionpolicy Bypass" }
-            "/CMD_Admin" { Start-Process -FilePath "conhost.exe" -ArgumentList "cmd.exe -NoExit -executionpolicy Bypass" -Verb Runas}
-            "/Powershell_User" { Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -NoExit -executionpolicy Bypass"}
-            "/Powershell_Admin"{ Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -NoExit -executionpolicy Bypass" -Verb Runas}
-            "/Enter_PSSession_Admin" { Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -NoExit -executionpolicy Bypass -Command Enter-PSSession" -Verb Runas }
-            "/Enter_PSSession_User" { Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -NoExit -executionpolicy Bypass -Command Enter-PSSession" }
+            "/CMD_User" { Start_Program "cmd.exe" -noexit $true -admin $false }
+            "/CMD_Admin" { Start_Program "cmd.exe" -noexit $true -admin $true }
+            "/Powershell_User" { Start_Program "powershell.exe" -noexit $true -admin $true }
+            "/Powershell_Admin"{ Start_Program "powershell.exe" -noexit $true -admin $true }
+            "/Enter_PSSession_Admin" { Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -NoExit -executionpolicy Bypass -Command `$CPU = Read-Host -Prompt `"ComputerName`"; Enter-PSSession -ComputerName `$CPU" -Verb Runas }
+            "/Enter_PSSession_User" { Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -NoExit -executionpolicy Bypass -Command `$CPU = Read-Host -Prompt `"ComputerName`"; Enter-PSSession -ComputerName `$CPU" }
+            "/domain_user_query_submit" {
+                $query_attributes = grab_JSON_input
+                $result = & "${PSScriptRoot}\Scripts\AD_User_Lookup.ps1" $query_attributes
+                respond_in_JSON $result
+            }
             Default { 405_Method_Not_Allowed }
         }
     }

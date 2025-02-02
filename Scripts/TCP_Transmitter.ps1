@@ -102,7 +102,11 @@ try {
     while ($true) {
         Write-Host "$prompt" -NoNewLine
         $userinput = Read-Host
-        Transmit_TCP_Message $userinput
+        if ($userinput -ne "") {
+            Transmit_TCP_Message $userinput
+        } else {
+            Write-Host "No input present"
+        }
     }
 } catch {
     Stop_TCP_Transmitter

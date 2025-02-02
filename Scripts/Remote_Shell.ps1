@@ -10,7 +10,7 @@ if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administra
         Write-Host "Current user is not an administrator. Ignoring" -ForegroundColor Yellow
     } else {
         Write-Host "Current user is not an administrator. Attempting to run with elevated permissions..." -ForegroundColor Yellow
-        Start-Process powershell -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs
+        Start-Process conhost.exe -ArgumentList "powershell.exe -NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs
         Exit
     }
 } else {
