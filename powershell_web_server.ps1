@@ -235,7 +235,7 @@ while ($listener.IsListening) {
             "/Shutdown" { Shutdown_Actions }
             "/CMD_User" { Start_Program "cmd.exe" -noexit $true -admin $false }
             "/CMD_Admin" { Start_Program "cmd.exe" -noexit $true -admin $true }
-            "/Powershell_User" { Start_Program "powershell.exe" -noexit $true -admin $true }
+            "/Powershell_User" { Start_Program "powershell.exe" -noexit $true -admin $false }
             "/Powershell_Admin"{ Start_Program "powershell.exe" -noexit $true -admin $true }
             "/Enter_PSSession_Admin" { Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -NoExit -executionpolicy Bypass -Command `$CPU = Read-Host -Prompt `"ComputerName`"; Enter-PSSession -ComputerName `$CPU" -Verb Runas }
             "/Enter_PSSession_User" { Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -NoExit -executionpolicy Bypass -Command `$CPU = Read-Host -Prompt `"ComputerName`"; Enter-PSSession -ComputerName `$CPU" }
