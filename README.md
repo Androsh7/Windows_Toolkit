@@ -1,6 +1,6 @@
 # Windows Toolkit
 
-![image](https://github.com/user-attachments/assets/5054e53f-2bc2-48cf-8075-d72aac006d32)
+![image](https://github.com/user-attachments/assets/41f74b94-3ce6-4145-a5a9-e4fb7a544ae2)
 
 This is a Windows Toolkit written exclusively in powershell (and a bit of html) with no external modules.
 
