@@ -64,6 +64,12 @@ function 500_Internal_Server_Error {
     Serve_HTML "${PSScriptRoot}\Redirect\500.html"
 }
 
+function Respond_OK {
+    $response.StatusCode = 200
+    $response.StatusDescription = "OK"
+    $response.OutputStream.Close()
+}
+
 
 # Serves a File to the host
 function Serve_File ($Path, $Type) {
@@ -232,13 +238,14 @@ while ($listener.IsListening) {
     }
     else {
         switch ($request.RawUrl) {
-            "/Shutdown" { Shutdown_Actions }
-            "/CMD_User" { Start_Program "cmd.exe" -noexit $true -admin $false }
-            "/CMD_Admin" { Start_Program "cmd.exe" -noexit $true -admin $true }
-            "/Powershell_User" { Start_Program "powershell.exe" -noexit $true -admin $false }
-            "/Powershell_Admin"{ Start_Program "powershell.exe" -noexit $true -admin $true }
-            "/Enter_PSSession_Admin" { Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -NoExit -executionpolicy Bypass -Command `$CPU = Read-Host -Prompt `"ComputerName`"; Enter-PSSession -ComputerName `$CPU" -Verb Runas }
-            "/Enter_PSSession_User" { Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -NoExit -executionpolicy Bypass -Command `$CPU = Read-Host -Prompt `"ComputerName`"; Enter-PSSession -ComputerName `$CPU" }
+            "/Shutdown" { Shutdown_Actions}
+            "/CMD_User" { Start_Program "cmd.exe" -noexit $true -admin $false ; Respond_OK }
+            "/CMD_Admin" { Start_Program "cmd.exe" -noexit $true -admin $true ; Respond_OK }
+            "/Powershell_User" { Start_Program "powershell.exe" -noexit $true -admin $false ; Respond_OK }
+            "/Powershell_Admin"{ Start_Program "powershell.exe" -noexit $true -admin $true ; Respond_OK }
+            "/Enter_PSSession_Admin" { Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -NoExit -executionpolicy Bypass -Command `$CPU = Read-Host -Prompt `"ComputerName`"; Enter-PSSession -ComputerName `$CPU" -Verb Runas ; Respond_OK  }
+            "/Enter_PSSession_User" { Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -NoExit -executionpolicy Bypass -Command `$CPU = Read-Host -Prompt `"ComputerName`"; Enter-PSSession -ComputerName `$CPU" ; Respond_OK }
+            "/Remote_Desktop" { Start-Process -FilePath "mstsc.exe" ; Respond_OK}
             "/domain_user_query_submit" {
                 $query_attributes = grab_JSON_input
                 $result = & "${PSScriptRoot}\Scripts\AD_User_Lookup.ps1" $query_attributes
