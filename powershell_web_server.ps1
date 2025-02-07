@@ -278,6 +278,7 @@ while ($listener.IsListening) {
                 Start-Process -FilePath "mstsc.exe"
                 Respond_OK -close $true
             }
+            # This is broken right now fix later
             "/domain_user_query_submit" {
                 $query_attributes = grab_JSON_input
                 $result = & "${PSScriptRoot}\Scripts\AD_User_Lookup.ps1" $query_attributes

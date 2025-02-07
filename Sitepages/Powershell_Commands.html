@@ -82,7 +82,7 @@ Get-CimInstance Win32_Process -Filter "name LIKE 'explorer.exe'" | ForEach-Objec
     </div>
     <div class="script-container">
         <div class="script-title">Show all active sessions (slow)</div>
-        <div class="script-description">This script gets all current sessions, this can detect a user who has escalated permissions. This is much slower as it does not require administrator permissions</div>
+        <div class="script-description">This script gets all current sessions, this can detect a user who has escalated permissions. This is much slower as it uses a Cim method to query each process's user then it removes duplicates</div>
         <div class="script-code">
             <button class="copy-button" onclick="copyToClipboard('get-sessions-user')">Copy</button>
             <pre id="get-sessions-user">
@@ -103,7 +103,7 @@ Get-CimInstance Win32_Process | Where-Object { $_.SessionId -ne 0 } | ForEach-Ob
     </div>
     <div class="script-container">
         <div class="script-title">Show all active sessions (ADMIN)</div>
-        <div class="script-description">This script gets all current sessions, this can detect escalated permissions and windows service accounts. This command requires administrator permissions.<br><br>NOTE: in Powershell v7.5 this script be run without administrator permissions however the command will not show windows service accounts</div>
+        <div class="script-description">This script gets all current sessions, this can detect escalated permissions and windows service accounts. This command requires administrator permissions.<br><br>NOTE: in Powershell v7.5 this script can be run without administrator permissions however the command will not show windows service accounts</div>
         <div class="script-code">
             <button class="copy-button" onclick="copyToClipboard('get-sessions-admin')">Copy</button>
             <pre id="get-sessions-admin">Get-Process -IncludeUserName | Sort-Object Username -Unique | Where-Object { $null -ne $_.UserName} | Select-Object SessionId, Username, ProcessName, Id | Sort-Object -Property SessionId -Descending</pre>

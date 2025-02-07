@@ -1,6 +1,6 @@
 $Host.UI.RawUI.WindowTitle = "Remote Shell"
 
-$need_admin = $true
+$need_admin = $true # set this to false to be able to run this script as a user
 
 # Check if the script is running as administrator
 $currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
