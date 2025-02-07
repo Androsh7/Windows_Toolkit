@@ -20,6 +20,19 @@ $SitePages = New-PSDrive -Name SitePages -PSProvider FileSystem -Root "${PSScrip
 if (Get-PSDrive -Name "Files" -ErrorAction SilentlyContinue) { Remove-PSDrive -Name Files }
 $Files = New-PSDrive -Name Files -PSProvider FileSystem -Root "${PSScriptRoot}\Files\"
 
+
+function Respond_OK ([bool]$close) {
+    $response.StatusCode = 200
+    $response.StatusDescription = "OK"
+    if ($close) { $response.OutputStream.Close() }
+}
+
+function Respond_Custom ([string]$response_message, [int]$response_code, [bool]$close) {
+    $response.StatusCode = $response_code
+    $response.StatusDescription = $response_message
+    if ($close) { $response.OutputStream.Close() }
+}
+
 # Serves an HTML page to the host
 function Serve_HTML ([string]$Path) {
     $Path = $Path.Replace('/','\') # convert from web pathing to windows pathing
@@ -32,13 +45,11 @@ function Serve_HTML ([string]$Path) {
     if (test-path -Path "$Path" -PathType Leaf) {
         Write-Host "Valid Path" -ForegroundColor Green
         $responseString = get-content -path $Path
-        $response.StatusCode = 200
-        $response.StatusDescription = "OK"
+        Respond_OK -close $false
     } else {
         Write-Host "Invalid Path" -ForegroundColor Red
         $responseString = get-content -path "${PSScriptRoot}\Redirect\404.html"
-        $response.StatusCode = 400
-        $response.StatusDescription = "Not Found"
+        Respond_Custom -response_message "404 Not Found" -response_code 404
     }
     $buffer = [Text.Encoding]::UTF8.GetBytes($responseString)
     $response.ContentLength64 = $buffer.Length
@@ -46,28 +57,30 @@ function Serve_HTML ([string]$Path) {
     $response.OutputStream.Close()
 }
 
-# shorthand functions for redirects
-function 404_Not_Found { 
-    Write-Host "Error 404 Page Not Found" -ForegroundColor Red
-    Serve_HTML "${PSScriptRoot}\Redirect\404.html"
-}
-function 403_Access_Denied { 
-    Write-Host "Error 403 Access Denied" -ForegroundColor Red
-    Serve_HTML "${PSScriptRoot}\Redirect\403.html"
-}
-function 405_Method_Not_Allowed { 
-    Write-Host "Error 405 Method Not Allowed" -ForegroundColor Red
-    Serve_HTML "${PSScriptRoot}\Redirect\405.html"
-}
-function 500_Internal_Server_Error { 
-    Write-Host "Error 500 Internal Server Error" -ForegroundColor Red
-    Serve_HTML "${PSScriptRoot}\Redirect\500.html"
+function Serve_Error ([string]$path, [string]$error_message, [int]$error_code) {
+    if ($null -eq $path -and $null -eq $error_message -and $null -eq $error_code) {
+        Write-Host "Serve Error insufficient parameters provided" -ForegroundColor Red
+    }
+    $responseString = get-content -path $path
+    $buffer = [Text.Encoding]::UTF8.GetBytes($responseString)
+    $response.ContentLength64 = $buffer.Length
+    $response.OutputStream.Write($buffer, 0, $buffer.Length)
+    Respond_Custom -response_message $error_message -response_code $error_code
+    $response.OutputStream.Close()
 }
 
-function Respond_OK {
-    $response.StatusCode = 200
-    $response.StatusDescription = "OK"
-    $response.OutputStream.Close()
+# shorthand functions for redirects
+function 404_Not_Found { 
+    Serve_Error -path "${PSScriptRoot}\Redirect\404.html" -error_message "Error 404 Page Not Found" -error_code 404
+}
+function 403_Access_Denied {
+    Serve_Error -path "${PSScriptRoot}\Redirect\404.html" -error_message "Error 403 Access Denied" -error_code 403
+}
+function 405_Method_Not_Allowed { 
+    Serve_Error -path "${PSScriptRoot}\Redirect\405.html" -error_message "Error 405 Method Not Allowed" -error_code 405
+}
+function 500_Internal_Server_Error { 
+    Serve_Error -path "${PSScriptRoot}\Redirect\500.html" -error_message "Error 500 Internal Server Error" -error_code 500
 }
 
 
@@ -85,21 +98,17 @@ function Serve_File ($Path, $Type) {
         $imageBytes = [System.IO.File]::ReadAllBytes((Convert-Path "$Path"))
         $response.ContentLength64 = $imageBytes.Length
         $response.OutputStream.Write($imageBytes, 0, $imageBytes.Length)
-        $response.StatusCode = 200
-        $response.StatusDescription = "OK"
+        Respond_OK -close $false
     } else {
         Write-Host "Invalid Path" -ForegroundColor Red
-        $response.StatusCode = 404
-        $response.StatusDescription = "Not Found"
+        Respond_Custom -response_message "404 Not Found" -response_code 404 -close $false
     }
     $response.OutputStream.Close()
 }
 
 function Shutdown_Actions {
     Write-Host "Shutting down the server" -ForegroundColor Red
-    $response.StatusCode = 200
-    $response.StatusDescription = "OK"
-    $response.OutputStream.Close()
+    Respond_OK -close $true
     try {
         $listener.Stop()
         exit
@@ -238,14 +247,37 @@ while ($listener.IsListening) {
     }
     else {
         switch ($request.RawUrl) {
-            "/Shutdown" { Shutdown_Actions}
-            "/CMD_User" { Start_Program "cmd.exe" -noexit $true -admin $false ; Respond_OK }
-            "/CMD_Admin" { Start_Program "cmd.exe" -noexit $true -admin $true ; Respond_OK }
-            "/Powershell_User" { Start_Program "powershell.exe" -noexit $true -admin $false ; Respond_OK }
-            "/Powershell_Admin"{ Start_Program "powershell.exe" -noexit $true -admin $true ; Respond_OK }
-            "/Enter_PSSession_Admin" { Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -NoExit -executionpolicy Bypass -Command `$CPU = Read-Host -Prompt `"ComputerName`"; Enter-PSSession -ComputerName `$CPU" -Verb Runas ; Respond_OK  }
-            "/Enter_PSSession_User" { Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -NoExit -executionpolicy Bypass -Command `$CPU = Read-Host -Prompt `"ComputerName`"; Enter-PSSession -ComputerName `$CPU" ; Respond_OK }
-            "/Remote_Desktop" { Start-Process -FilePath "mstsc.exe" ; Respond_OK}
+            "/Shutdown" {
+                Shutdown_Actions
+            }
+            "/CMD_User" {
+                Start_Program "cmd.exe" -noexit $true -admin $false
+                Respond_OK -close $true
+            }
+            "/CMD_Admin" {
+                Start_Program "cmd.exe" -noexit $true -admin $true
+                Respond_OK -close $true
+            }
+            "/Powershell_User" {
+                Start_Program "powershell.exe" -noexit $true -admin $false
+                Respond_OK -close $true
+            }
+            "/Powershell_Admin" {
+                Start_Program "powershell.exe" -noexit $true -admin $true
+                Respond_OK -close $true
+            }
+            "/Enter_PSSession_Admin" {
+                Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -NoExit -executionpolicy Bypass -Command `$CPU = Read-Host -Prompt `"ComputerName`"; Enter-PSSession -ComputerName `$CPU" -Verb Runas
+                Respond_OK -close $true
+            }
+            "/Enter_PSSession_User" {
+                Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -NoExit -executionpolicy Bypass -Command `$CPU = Read-Host -Prompt `"ComputerName`"; Enter-PSSession -ComputerName `$CPU"
+                Respond_OK -close $true
+            }
+            "/Remote_Desktop" {
+                Start-Process -FilePath "mstsc.exe"
+                Respond_OK -close $true
+            }
             "/domain_user_query_submit" {
                 $query_attributes = grab_JSON_input
                 $result = & "${PSScriptRoot}\Scripts\AD_User_Lookup.ps1" $query_attributes

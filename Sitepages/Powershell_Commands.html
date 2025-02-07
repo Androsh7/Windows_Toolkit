@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Useful PowerShell Scripts</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .script-container {
+            margin-bottom: 20px;
+        }
+        .script-title {
+            font-weight: bold;
+        }
+        .script-description {
+            margin: 5px 0;
+        }
+        .script-code {
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            padding: 10px;
+            position: relative;
+        }
+        .copy-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #0078d4;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .home-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+        }
+        .power-button {
+            position: absolute;
+            top: 80px;
+            right: 10px;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Useful PowerShell Scripts</h1>
+    <div style="height: 20px;"></div>
+    <div class="script-container">
+        <div class="script-title">Show all GUI users</div>
+        <div class="script-description">This script grabs all users with a GUI (explorer.exe) and their current uptime</div>
+        <div class="script-code">
+            <button class="copy-button" onclick="copyToClipboard('get-gui_users')">Copy</button>
+            <pre id="get-gui_users">$users = @()<br>
+$sys_uptime = $(Get-Uptime)<br>
+$system = New-Object -TypeName PSObject -Property @{<br>
+    User = "System"<br>
+    Domain = "$(HOSTNAME.EXE)"<br>
+    Uptime = "$([math]::floor($sys_uptime.TotalHours))h $($sys_uptime.Minutes)m $($sys_uptime.Seconds)s"<br>
+}<br>
+$users += $system<br>
+Get-CimInstance Win32_Process -Filter "name LIKE 'explorer.exe'" | ForEach-Object {<br>
+    $output = Invoke-CimMethod -InputObject $_ -MethodName GetOwner | Select-Object User, Domain<br>
+    $uptime = New-Timespan -start $_.CreationDate -End $current_date<br>
+    $uptime_formatted = "$([math]::floor($uptime.TotalHours))h $($uptime.Minutes)m $($uptime.Seconds)s"<br>
+    $output | Add-Member -MemberType NoteProperty -Name Uptime -Value $uptime_formatted<br>
+    $users += $output<br>
+} ; $users | Select-Object -Property Domain, User, Uptime | Sort-Object -Property Uptime</pre>
+        </div>
+    </div>
+    <div class="script-container">
+        <div class="script-title">Show all active sessions (slow)</div>
+        <div class="script-description">This script gets all current sessions, this can detect a user who has escalated permissions. This is much slower as it does not require administrator permissions</div>
+        <div class="script-code">
+            <button class="copy-button" onclick="copyToClipboard('get-sessions-user')">Copy</button>
+            <pre id="get-sessions-user">
+$sessions = @()<br>
+Get-CimInstance Win32_Process | Where-Object { $_.SessionId -ne 0 } | ForEach-Object {<br>
+    $session_info = New-Object PSObject<br>
+    $session_info | Add-Member -MemberType NoteProperty -Name "SessionId" -Value $_.SessionId<br>
+    $owner = Invoke-CimMethod -InputObject $_ -MethodName GetOwner<br>
+    if ($null -eq $owner.User) { $owner.User = "UNKNOWN" }<br>
+    if ($null -eq $owner.Domain) { $owner.Domain = "UNKNOWN" }<br>
+    $session_info | Add-Member -MemberType NoteProperty -Name "User" -Value $owner.User<br>
+    $session_info | Add-Member -MemberType NoteProperty -Name "Domain" -Value $owner.Domain<br>
+    $session_info | Add-Member -MemberType NoteProperty -Name "Process" -Value $_.Name<br>
+    $session_info | Add-Member -MemberType NoteProperty -Name "PID" -Value $_.ProcessId<br>
+    $sessions += $session_info<br>
+} ; $sessions | Sort-Object -Property Name, Domain -Unique | Format-Table -AutoSize</pre>
+        </div>
+    </div>
+    <div class="script-container">
+        <div class="script-title">Show all active sessions (ADMIN)</div>
+        <div class="script-description">This script gets all current sessions, this can detect escalated permissions and windows service accounts. This command requires administrator permissions.<br><br>NOTE: in Powershell v7.5 this script be run without administrator permissions however the command will not show windows service accounts</div>
+        <div class="script-code">
+            <button class="copy-button" onclick="copyToClipboard('get-sessions-admin')">Copy</button>
+            <pre id="get-sessions-admin">Get-Process -IncludeUserName | Sort-Object Username -Unique | Where-Object { $null -ne $_.UserName} | Select-Object SessionId, Username, ProcessName, Id | Sort-Object -Property SessionId -Descending</pre>
+        </div>
+    </div>
+    <script>
+        function copyToClipboard(elementId) {
+            var copyText = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(copyText).then(function() {
+            }, function(err) {
+                alert('Failed to copy text: ', err);
+            });
+        }
+    </script>
+    <a href="index.html"> <img src="home.png" alt="Home Button" class="home-button"> </a>
+    <img src="power.png" alt="Power Button" class="power-button" 
+    onclick="fetch('/shutdown')
+                .then(response => { 
+                    if (response.ok) { 
+                        alert('Shutdown initiated');
+                        window.location.reload();
+                    } else { 
+                        alert('Failed to initiate shutdown'); 
+                    } 
+                })
+                .catch(error => { 
+                    alert('Error: ' + error); 
+                });">
+</body>
+</html>

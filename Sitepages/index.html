@@ -93,7 +93,7 @@
         <div class="column">
             <h2>Local Tools</h2>
             <ul>
-                <li><button class="ps1-button" onclick="fetch('/SystemInfo.ps1')">Systeminfo</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/SystemInfo.ps1')">Systeminfo</button></li>
                 <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/CMD_User')">CMD (User)</button></li>
                 <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/CMD_Admin')">CMD (Admin)</button></li>
                 <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Powershell_User')">Powershell (User)</button></li>
@@ -107,7 +107,6 @@
                 <li><button class="ps1-button" onclick="fetch('/Enter_PSSession_User')">Enter-PSSession User (shell)</button></li>
                 <li><button class="ps1-button" onclick="fetch('/Enter_PSSession_Admin')">Enter-PSSession Admin (shell)</button></li>
                 <li><button class="ps1-button" onclick="fetch('/Remote_Desktop')">Remote Desktop (RDP)</button></li>
-                
             </ul>
         </div>
         <div class="column">
@@ -118,17 +117,18 @@
             </ul>
         </div>
         <div class="column">
-            <h2>Transmitters</h2>
+            <h2>Transmitters/Receivers</h2>
             <ul>
-                <li><button class="ps1-button" onclick="fetch('/TCP_Transmitter.ps1')">TCP Transmitter (shell)</button></li>
-                <li><button class="ps1-button" onclick="fetch('/UDP_Transmitter.ps1')">UDP Transmitter (shell)</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/TCP_Transmitter.ps1')">TCP Send (shell)</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/UDP_Transmitter.ps1')">UDP Send (shell)</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/TCP_Receiver.ps1')">TCP Receive (shell)</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/UDP_Receiver.ps1')">UDP Receive (shell)</button></li>
             </ul>
         </div>
         <div class="column">
-            <h2>Receivers</h2>
+            <h2>Resources</h2>
             <ul>
-                <li><button class="ps1-button" onclick="fetch('/TCP_Receiver.ps1')">TCP Receiver (shell)</button></li>
-                <li><button class="ps1-button" onclick="fetch('/UDP_Receiver.ps1')">UDP Receiver (shell)</button></li>
+                <li><a href="Powershell_Commands.html">Powershell Commands</a></li>
             </ul>
         </div>
     </div>
