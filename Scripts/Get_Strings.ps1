@@ -16,9 +16,9 @@ $OpenFileDialog.Multiselect = $false
 
 if ($OpenFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
     $selectedFile = $OpenFileDialog.FileName
-    Write-Output "Selected file: $selectedFile" -ForegroundColor Cyan
+    Write-Host "Selected file: $selectedFile" -ForegroundColor Cyan
 } else {
-    Write-Output "No file selected." -ForegroundColor Red
+    Write-Host "No file selected." -ForegroundColor Red
     Exit
 }
 
