@@ -266,6 +266,14 @@ while ($listener.IsListening) {
                 Start_Program "powershell.exe" -noexit $true -admin $true
                 Respond_OK -close $true
             }
+            "/PWSH_User" {
+                Start_Program "pwsh.exe" -noexit $true -admin $false
+                Respond_OK -close $true
+            }
+            "/PWSH_Admin" {
+                Start_Program "pwsh.exe" -noexit $true -admin $true
+                Respond_OK -close $true
+            }
             "/Enter_PSSession_Admin" {
                 Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -NoExit -executionpolicy Bypass -Command `$CPU = Read-Host -Prompt `"ComputerName`"; Enter-PSSession -ComputerName `$CPU" -Verb runasuser
                 Respond_OK -close $true

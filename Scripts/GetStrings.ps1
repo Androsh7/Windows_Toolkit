@@ -1,8 +1,8 @@
 Add-Type -AssemblyName System.Windows.Forms
 
-$Host.UI.RawUI.WindowTitle = "Get_Strings"
+$Host.UI.RawUI.WindowTitle = "GetStrings"
 
-Write-Host "Running Get_Strings.ps1 at $(Get-Date)"-ForegroundColor Cyan
+Write-Host "Running GetStrings.ps1 at $(Get-Date)"-ForegroundColor Cyan
 
 $out_file = "${env:TEMP}\Strings.txt"
 $update_frequency = 3 #changes the seconds elapsed between progress updates
@@ -43,7 +43,7 @@ Write-Host "Grabbing Byte Stream for $selectedFile"
 $byte_stream = Get-Content -Raw $selectedFile -Encoding Byte 
 
 # add output file headers
-"Get_Strings.ps1 running on $(Get-Date)" > $out_file
+"GetStrings.ps1 running on $(Get-Date)" > $out_file
 "Parsing File: `"$selectedFile`"" >> $out_file
 "Minimum String Length: $min_string_len" >> $out_file
 "This file is saved in $out_file" >> $out_file

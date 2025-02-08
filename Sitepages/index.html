@@ -48,7 +48,7 @@
             flex-wrap: wrap;
         }
         .column {
-            width: 22%;
+            width: 18%;
             background: rgba(255, 255, 255, 0.8);
             padding: 40px;
             margin: 10px;
@@ -84,47 +84,53 @@
 <body>
     <div class="container">
         <div class="column">
-            <h2>Server Management</h2>
+            <h2>Program shortcuts</h2>
             <ul>
-                <li><a href="/Server_Management/Domain_User_Query.html">Query Domain Users</a></li>
-                <li><a href="/Server_Management/Domain_Computer_Query.html">Query Domain Computers</a></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/CMD_User')">cmd.exe</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/CMD_Admin')">cmd.exe Runas</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Powershell_User')">Powershell</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Powershell_Admin')">Powershell Runas</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/PWSH_User')">pwsh.exe</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/PWSH_Admin')">pwsh.exe Runas</button></li>
             </ul>
         </div>
         <div class="column">
             <h2>Local Tools</h2>
             <ul>
                 <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/SystemInfo.ps1')">Systeminfo</button></li>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Get_Strings.ps1')">Get Strings</button></li>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/CMD_User')">CMD</button></li>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/CMD_Admin')">CMD Runas</button></li>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Powershell_User')">Powershell</button></li>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Powershell_Admin')">Powershell Runas</button></li>
-                
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/GetStrings.ps1')">Get Strings</button></li>
             </ul>
         </div>
         <div class="column">
             <h2>Remote Tools</h2>
             <ul>
-                <li><button class="ps1-button" onclick="fetch('/Remote_Shell.ps1')">Remote Terminal (shell)</button></li>
-                <li><button class="ps1-button" onclick="fetch('/Enter_PSSession_User')">Enter-PSSession (shell)</button></li>
-                <li><button class="ps1-button" onclick="fetch('/Enter_PSSession_Admin')">Enter-PSSession Runas (shell)</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Remote_Shell.ps1')">Remote Terminal</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Enter_PSSession_User')">PSSession</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Enter_PSSession_Admin')">PSSession Runas</button></li>
                 <li><button class="ps1-button" onclick="fetch('/Remote_Desktop')">Remote Desktop (RDP)</button></li>
             </ul>
         </div>
         <div class="column">
-            <h2>Network Tools</h2>
+            <h2>Active Directory</h2>
             <ul>
-                <li><button class="ps1-button" onclick="fetch('/TCP_Scanner.ps1')">TCP Scanner (shell)</button></li>
-                <li><button class="ps1-button" onclick="fetch('/ICMP_Scanner.ps1')">UDP Scanner (shell)</button></li>
+                <li><a href="/Server_Management/Domain_User_Query.html">Query Domain Users</a></li>
+                <li><a href="/Server_Management/Domain_Computer_Query.html">Query Domain Computers</a></li>
             </ul>
         </div>
         <div class="column">
             <h2>Transmitters/Receivers</h2>
             <ul>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/TCP_Transmitter.ps1')">TCP Send (shell)</button></li>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/TCP_Receiver.ps1')">TCP Receive (shell)</button></li>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/UDP_Transmitter.ps1')">UDP Send (shell)</button></li>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/UDP_Receiver.ps1')">UDP Receive (shell)</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/TCP_Transmitter.ps1')">TCP Send</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/TCP_Receiver.ps1')">TCP Receive</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/UDP_Transmitter.ps1')">UDP Send</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/UDP_Receiver.ps1')">UDP Receive</button></li>
+            </ul>
+        </div>
+        <div class="column">
+            <h2>Network Scanners</h2>
+            <ul>
+                <li><button class="ps1-button" onclick="fetch('/TCP_Scanner.ps1')">TCP Scanner</button></li>
+                <li><button class="ps1-button" onclick="fetch('/ICMP_Scanner.ps1')">UDP Scanner</button></li>
             </ul>
         </div>
         <div class="column">
