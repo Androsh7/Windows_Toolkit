@@ -1,6 +1,6 @@
 Add-Type -AssemblyName System.Windows.Forms
 
-$Host.UI.RawUI.WindowTitle = "Get-Strings"
+$Host.UI.RawUI.WindowTitle = "Get_Strings"
 
 Write-Host "Running Get_Strings.ps1 at $(Get-Date)"-ForegroundColor Cyan
 
@@ -31,6 +31,8 @@ if (Test-Path $selectedFile) {
     Write-Host "File is accessible, proceeding to parse for strings" -ForegroundColor Green
 } else {
     Write-Host "File is inaccessible, verify you have permissions to read this file" -ForegroundColor Red
+    Read-Host "`nPress ENTER to exit"
+    Exit
 }
 
 # grab byte stream
