@@ -1,0 +1,6 @@
+Began logging on 02/08/2025 09:09:30
+Listening for incoming requests on http://127.0.0.1:9000/
+User 127.0.0.1:??? made request /
+Serving Page "SitePages:\\index.html" - Valid Path
+User 127.0.0.1:??? made request /home.png
+Serving File "Files:\\home.png" of type image/png - Valid Path
