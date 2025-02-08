@@ -29,6 +29,7 @@ if ($null -eq $min_string_len) { $min_string_len = 3 }
 # tests to ensure the file exists
 if (Test-Path $selectedFile) {
     Write-Host "File is accessible, proceeding to parse for strings" -ForegroundColor Green
+    $Host.UI.RawUI.WindowTitle = "GetStrings - $selectedFile"
 } else {
     Write-Host "File is inaccessible, verify you have permissions to read this file" -ForegroundColor Red
     Read-Host "`nPress ENTER to exit"
