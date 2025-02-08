@@ -2,7 +2,7 @@
 
 ![image](https://github.com/user-attachments/assets/41f74b94-3ce6-4145-a5a9-e4fb7a544ae2)
 
-This is a Windows Toolkit written exclusively in powershell (and a bit of html) with no external modules.
+This is a Windows Toolkit written exclusively in PowerShell version 5.1 (and a bit of html) with no external modules.
 
 The purpose of this toolkit is to provide a simple replication of many common networking and basic sysadmin tools which can be used in a stock windows environment without administrator permissions.
 
