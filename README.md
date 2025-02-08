@@ -17,10 +17,10 @@ The purpose of this toolkit is to provide a simple replication of many common ne
   - [ ] WIP - optimize with PS jobs to allow multiple simultaneous scans 
 - Basic Shortcuts - The program currently has shortcuts for the following programs:
   - [X] mstsc.exe (Default RDP connector on windows)
-  - [X] cmd.exe (user and admin)
-  - [X] powershell.exe (user and admin)
-  - [X] Enter-PSSession (user and admin)
-  - [ ] WIP - Different versions of powershell (I.E: 7.5)
+  - [X] cmd.exe (user and runas)
+  - [X] powershell.exe (user and runas)
+  - [X] Enter-PSSession (user and runas)
+  - [X] pwsh.exe (user and runas)
 - Utilities
   - [X] SystemInfo.ps1 - a script that runs the "systeminfo" command and then opens up a notepad with the results
   - [X] Get_Strings.ps1 - a script that parses any file for valid ASCII strings of a specified length and then returns a notepad with the results
