@@ -1,13 +1,19 @@
 # Create a new HttpListener instance
 $listener = New-Object System.Net.HttpListener
 
+# Create a log file
+$date = $(Get-Date)
+$logfile = "${PSScriptRoot}\Logs\logfile_$($date.Month)-$($date.Day)-$($date.Year).txt"
+Write-Host "Writing log to $logfile"
+"Began logging on $(get-date)" >> $logfile
+
 # Listening prefix
 $prefix = "http://127.0.0.1:9000/"
 $listener.Prefixes.Add($prefix)
 
 # Start the listener
 $listener.Start()
-Write-Host "Listening for incoming requests on $prefix" -ForegroundColor Cyan
+"Listening for incoming requests on $prefix" | Tee-Object -FilePath $logfile -Append | Write-Host -ForegroundColor Cyan 
 
 # Create global variables
 $context = $null
@@ -40,14 +46,14 @@ function Serve_HTML ([string]$Path) {
         Write-Host "Serve_HTML insufficient Parameters provided" -ForegroundColor Red
         return
     }
-    Write-Host "Serving Page `"$Path`" - " -NoNewline
+    $print = "Serving Page `"$Path`" -"
     $responseString = ""
     if (test-path -Path "$Path" -PathType Leaf) {
-        Write-Host "Valid Path" -ForegroundColor Green
+        "$print Valid Path" | Tee-Object -FilePath $logfile -Append | Write-Host -ForegroundColor Green
         $responseString = get-content -path $Path
         Respond_OK -close $false
     } else {
-        Write-Host "Invalid Path" -ForegroundColor Red
+        "$print Invalid Path" | Tee-Object -FilePath $logfile -Append | Write-Host -ForegroundColor Red
         $responseString = get-content -path "${PSScriptRoot}\Redirect\404.html"
         Respond_Custom -response_message "404 Not Found" -response_code 404
     }
@@ -59,7 +65,7 @@ function Serve_HTML ([string]$Path) {
 
 function Serve_Error ([string]$path, [string]$error_message, [int]$error_code) {
     if ($null -eq $path -and $null -eq $error_message -and $null -eq $error_code) {
-        Write-Host "Serve Error insufficient parameters provided" -ForegroundColor Red
+        "Serve Error insufficient parameters provided" | Tee-Object -FilePath $logfile -Append | Write-Host -ForegroundColor Red 
     }
     $responseString = get-content -path $path
     $buffer = [Text.Encoding]::UTF8.GetBytes($responseString)
@@ -72,15 +78,19 @@ function Serve_Error ([string]$path, [string]$error_message, [int]$error_code) {
 # shorthand functions for redirects
 function 404_Not_Found { 
     Serve_Error -path "${PSScriptRoot}\Redirect\404.html" -error_message "Error 404 Page Not Found" -error_code 404
+    "Error 404 Page Not Found" | Tee-Object -FilePath $logfile -Append | Write-Host -ForegroundColor Red
 }
 function 403_Access_Denied {
     Serve_Error -path "${PSScriptRoot}\Redirect\404.html" -error_message "Error 403 Access Denied" -error_code 403
+    "Error 403 Access Denied" | Tee-Object -FilePath $logfile -Append | Write-Host -ForegroundColor Red
 }
 function 405_Method_Not_Allowed { 
     Serve_Error -path "${PSScriptRoot}\Redirect\405.html" -error_message "Error 405 Method Not Allowed" -error_code 405
+    "Error 405 Method Not Allowed" | Tee-Object -FilePath $logfile -Append | Write-Host -ForegroundColor Red
 }
 function 500_Internal_Server_Error { 
     Serve_Error -path "${PSScriptRoot}\Redirect\500.html" -error_message "Error 500 Internal Server Error" -error_code 500
+    "Error 500 Internal Server Error" | Tee-Object -FilePath $logfile -Append | Write-Host -ForegroundColor Red
 }
 
 
@@ -88,33 +98,33 @@ function 500_Internal_Server_Error {
 function Serve_File ($Path, $Type) {
     $Path = $Path.Replace('/','\') # convert from web pathing to windows pathing
     if ($Null -eq $Path -or $Null -eq $Type) {
-        Write-Host "Serve_File insufficient Parameters provided" -ForegroundColor Red
+        "Serve_File insufficient Parameters provided" | Tee-Object -FilePath $logfile -Append | Write-Host -ForegroundColor Red
         return
     }
-    Write-Host "Serving File `"$Path`" of type $Type - " -NoNewline
+    $print = "Serving File `"$Path`" of type $Type -"
     $response.ContentType = $Type
     if (Test-Path -Path "$Path" -PathType Leaf) {
-        Write-Host "Valid Path" -ForegroundColor Green
+        "$print Valid Path" | Tee-Object -FilePath $logfile -Append | Write-Host -ForegroundColor Green
         $imageBytes = [System.IO.File]::ReadAllBytes((Convert-Path "$Path"))
         $response.ContentLength64 = $imageBytes.Length
         $response.OutputStream.Write($imageBytes, 0, $imageBytes.Length)
         Respond_OK -close $false
     } else {
-        Write-Host "Invalid Path" -ForegroundColor Red
+        "$print Invalid Path" | Tee-Object -FilePath $logfile -Append | Write-Host -ForegroundColor Red
         Respond_Custom -response_message "404 Not Found" -response_code 404 -close $false
     }
     $response.OutputStream.Close()
 }
 
 function Shutdown_Actions {
-    Write-Host "Shutting down the server" -ForegroundColor Red
+    "Shutting down the server" | Tee-Object -FilePath $logfile -Append | Write-Host -ForegroundColor Red
     Respond_OK -close $true
     try {
         $listener.Stop()
         exit
     }
     catch {
-        Write-Host "Error closing listener $_"
+        "Error closing listener $_" | Tee-Object -FilePath $logfile -Append | Write-Host
         500_Internal_Server_Error
     }
     exit
@@ -124,13 +134,13 @@ $script_list = (Get-ChildItem -Path "${PSScriptRoot}/Scripts/" -Filter "*.ps1").
 function Start_Script ([string]$script_name) {
     try {
         Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -executionpolicy Bypass -File ${PSScriptRoot}/Scripts/${script_name}"
-        Write-Host "Starting Script ${script_name}"
+        "Starting Script ${script_name}" | Tee-Object -FilePath $logfile -Append | Write-Host 
         $response.StatusCode = 200
         $response.StatusDescription = "OK"
         $response.OutputStream.Close()
     }
     catch {
-        Write-Host "Error attempting to run ${script_name}: $_" -ForegroundColor Red
+        "Error attempting to run ${script_name}: $_" | Tee-Object -FilePath $logfile -Append | Write-Host -ForegroundColor Red
         $response.StatusCode = 500
         $response.StatusDescription = "Internal Server Error"
         $response.OutputStream.Close()
@@ -139,7 +149,7 @@ function Start_Script ([string]$script_name) {
 
 function Start_Program([string]$program_name, [bool]$noexit, [bool]$admin) {
     if ($null -eq $program_name) {
-        Write-Host "No program name provided" -ForegroundColor Red
+        "No program name provided" | Tee-Object -FilePath $logfile -Append | Write-Host -ForegroundColor Red
         return
     }
     $argument_list = "${program_name} -executionpolicy bypass"
@@ -150,14 +160,14 @@ function Start_Program([string]$program_name, [bool]$noexit, [bool]$admin) {
         } else {
             Start-Process -FilePath "conhost.exe" -ArgumentList $argument_list
         }
-        Write-Host "Started process ${program_name} as " -NoNewline
-        if ($admin) { Write-Host "administrator" }
-        else { Write-Host "user" }
+        $print = "Started process ${program_name} as"
+        if ($admin) { "$print administrator" | Tee-Object -FilePath $logfile -Append | Write-Host }
+        else { "$print user" | Tee-Object -FilePath $logfile -Append | Write-Host }
     }
     catch {
-        Write-Host "Failed to start process ${program_name} as " -NoNewline -ForegroundColor Red
-        if ($admin) { Write-Host "administrator" -ForegroundColor Red }
-        else { Write-Host "user" -ForegroundColor Red }
+        $print = "Failed to start process ${program_name} as"
+        if ($admin) { "$print administrator" | Tee-Object -FilePath $logfile -Append | Write-Host -ForegroundColor Red }
+        else { "$print user" | Tee-Object -FilePath $logfile -Append | Write-Host -ForegroundColor Red }
     }
 }
 
@@ -206,7 +216,7 @@ function respond_in_JSON ([string]$Raw_input) {
 
 function grab_JSON_input {
     if ($request.InputStream.CanRead -eq $false) {
-        Write-Host "Input Stream Read Error" -ForegroundColor Red
+        "Input Stream Read Error" | Out-File -FilePath $logfile -Append | Write-Host -ForegroundColor Red 
         return
     }
     $reader = New-Object System.IO.StreamReader($request.InputStream)
@@ -222,7 +232,7 @@ while ($listener.IsListening) {
     $response = $context.Response
 
     # error printing
-    Write-Host "User $($request.RemoteEndPoint) made request $($request.RawUrl)" -ForegroundColor Cyan
+    "User $($request.RemoteEndPoint) made request $($request.RawUrl)" | Tee-Object -FilePath $logfile -Append | Write-Host -ForegroundColor Cyan
 
     # Default actions
     if     ($request.RawUrl -eq "favicon.ico") { Serve_File "Files:\\favicon.ico" "image/x-icon" }
