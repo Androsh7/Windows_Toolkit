@@ -1,114 +1,59 @@
-$Host.UI.RawUI.WindowTitle = "TCP Transmitter"
+$Host.UI.RawUI.WindowTitle = "TCP CLIENT"
 
-$pshost = Get-Host              # Get the PowerShell Host.
-$pswindow = $pshost.UI.RawUI    # Get the PowerShell Host's UI.
+Write-Host "------------------------- TCP CLIENT -------------------------" -ForegroundColor Yellow
+$dst_ip = Read-Host -Prompt "Destination IP Address"
+[int32]$dst_port = Read-Host -Prompt "Destination Port"
 
-$newsize = $pswindow.BufferSize # Get the UI's current Buffer Size.
-$newsize.width = 120            # Set the new buffer's width to 150 columns.
-$pswindow.buffersize = $newsize # Set the new Buffer Size as active.
+# Build the tcp_client object
+$tcp_client = New-Object System.Net.Sockets.TcpClient
 
-$newsize = $pswindow.windowsize # Get the UI's current Window Size.
-$newsize.width = 80            # Set the new Window Width to 150 columns.
-$pswindow.windowsize = $newsize # Set the new Window Size as active.
-
-function Enter_to_Exit {
-    Write-Host "Press ENTER to exit"
-    Read-Host
+# attempt to connect
+try {
+    Write-Host "Attempting to connect to ${dst_ip}:${dst_port}" -ForegroundColor Cyan
+    $tcp_client.Connect($dst_ip, $dst_port)
+}
+catch {
+    Write-Host "Failed to connect to ${dst_ip}:${dst_port}" -ForegroundColor Red
+    Write-Host $_ -ForegroundColor Red
+    Pause
     Exit
 }
+Clear-Host
+$Host.UI.RawUI.WindowTitle = "TCP CLIENT - $($tcp_client.Client.LocalEndPoint) CONNECTED TO $($tcp_client.Client.RemoteEndPoint)"
+Write-Host "---------------------------------------------------------------------------------------" -ForegroundColor Yellow
+Write-Host "TCP CLIENT CONNECTION $($tcp_client.Client.LocalEndPoint) --> $($tcp_client.Client.RemoteEndPoint)" -ForegroundColor Yellow
+Write-Host "---------------------------------------------------------------------------------------" -ForegroundColor Yellow
 
-function Start_TCP_Transmitter {
-    try {
-        # Get destination IP and port from user
-        $global:dst_ip = Read-Host -Prompt "Destination IP"
-        $global:dst_port = [int](Read-Host -Prompt "Destination Port")
-        $global:dst_proto = "(TCP)"
+# grab stream reader
+$tcp_stream = $tcp_client.GetStream()
 
-        Write-Host "Connecting"
+# set the output variables
+$encoding = [System.Text.Encoding]::ASCII
+$out_string = ""
 
-        $Address = [system.net.IPAddress]::Parse($dst_ip)
-
-        # Create IP Endpoint
-        $End = New-Object System.Net.IPEndPoint $Address, $dst_port
-
-        # Create Socket
-        $saddrf = [System.Net.Sockets.AddressFamily]::InterNetwork
-        $Stype = [System.Net.Sockets.SocketType]::Stream
-        $Ptype = [System.Net.Sockets.ProtocolType]::TCP
-        $global:Sock = New-Object System.Net.Sockets.Socket $saddrf, $stype, $ptype
-
-        # Connect to socket
-        $global:sock.Connect($End)
-
-        # Mark transmitter as working
-        $global:transmitter = $true
-        
-        Write-Host "Successfully started the TCP transmitter" -ForegroundColor Blue
-        $Host.UI.RawUI.WindowTitle = "TCP ${dst_ip}:${dst_port} Transmitter"
-        $global:prompt = "${dst_ip}:${dst_port} ${dst_proto}>"
+while ($tcp_client.Connected) {
+    # checks if data is available to be printed
+    if ($tcp_stream.DataAvailable) {
+        $read_buffer = New-Object byte[] 1024
+        $read_bytes = $tcp_stream.Read($read_buffer)
+        $out_string = [Text.Encoding]::ASCII.GetString($read_buffer, 0, $read_bytes)
+            Write-Host "$($tcp_client.Client.RemoteEndPoint)> " -ForegroundColor Green -NoNewline
+            Write-Host $out_string -NoNewline -ForegroundColor Green
     }
-    catch {
-        Write-Host "ERROR: could not setup TCP transmitter" -ForegroundColor Red
-        Enter_to_Exit
-    }
-}
-
-function Stop_TCP_Transmitter {
-    try {
-        $global:sock.Close()
-        Write-Host "Successfully stopped the TCP transmitter" -ForegroundColor Blue
-    }
-    catch {
-        Write-Host "ERROR: could not stop the TCP transmitter" -ForegroundColor Red
-    }
-
-    # note: that regardless of whether or not the close was successful, the transmitter is marked as inactive
-    $global:transmitter = $false
-    $global:dst_ip = ""
-    $global:dst_port = 0
-    $global:dst_proto = ""
-    $global:prompt = ">"
-}
-
-function Transmit_TCP_Message {
-    param (
-        $Message
-    )
-    try {
-        if ($Sock.Connected) {
-            # Create encoded buffer
-            $Enc = [System.Text.Encoding]::ASCII
-            $Buffer = $Enc.GetBytes($Message)
-
-            # Send the buffer via the established socket
-            $Sock.Send($Buffer)
-
-            # Informational message for length
-            $length = $Message.Length
-            $date = Get-Date -UFormat "%m/%d/%Y %R UTC%Z"
-            Write-Host "SENT ${length} Characters AT ${date}" -ForegroundColor Green
+    # checks if a keyboard input has been read
+    while ([Console]::KeyAvailable) {
+        $key = [console]::ReadKey()
+        if ($key.Key -eq "Enter") {
+            $out_buffer = $encoding.GetBytes($out_string)
+            $out_bytes = $tcp_stream.Write($out_buffer, 0, $out_string.Length)
+            Write-Host "$($tcp_client.Client.LocalEndPoint)> " -ForegroundColor Cyan -NoNewline
+            Write-Host $out_string -ForegroundColor Cyan
+            $out_string = ""
+            break
+        } elseif ($key.Key -eq "Escape") {
+            # this will eventually clear the out_string variable
         } else {
-            Write-Host "ERROR: Socket is not connected" -ForegroundColor Red
+            $out_string += $key.KeyChar
         }
-    }
-    catch {
-        Write-Host "ERROR: could not send message" -ForegroundColor Red
-    }
-}
-
-Write-Host "Running TCP_Transmitter.ps1 at $(get-date)" -foreground Cyan
-Start_TCP_Transmitter
-try {
-    while ($true) {
-        Write-Host "$prompt" -NoNewLine
-        $userinput = Read-Host
-        if ($userinput -ne "") {
-            Transmit_TCP_Message $userinput
-        } else {
-            Write-Host "No input present"
-        }
-    }
-} catch {
-    Stop_TCP_Transmitter
-    Enter_to_Exit
+    }  
 }
