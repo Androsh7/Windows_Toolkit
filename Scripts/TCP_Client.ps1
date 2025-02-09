@@ -31,27 +31,44 @@ $tcp_stream = $tcp_client.GetStream()
 $encoding = [System.Text.Encoding]::ASCII
 $out_string = ""
 
+# set the input variables
+$read_buffer = New-Object byte[] 1024
+
 while ($tcp_client.Connected) {
+
     # checks if data is available to be printed
     if ($tcp_stream.DataAvailable) {
-        $read_buffer = New-Object byte[] 1024
-        $read_bytes = $tcp_stream.Read($read_buffer)
+
+        # read the input
+        $read_bytes = $tcp_stream.Read($read_buffer, 0, 1024)
         $out_string = [Text.Encoding]::ASCII.GetString($read_buffer, 0, $read_bytes)
-            Write-Host "$($tcp_client.Client.RemoteEndPoint)> " -ForegroundColor Green -NoNewline
-            Write-Host $out_string -NoNewline -ForegroundColor Green
+
+        # write to the screen
+        Write-Host "$($tcp_client.Client.RemoteEndPoint)> " -ForegroundColor Green -NoNewline
+        Write-Host $out_string -NoNewline -ForegroundColor Green
+
+        # clear the read buffer
+        0..${read_bytes} | ForEach-Object {
+            $read_buffer[$_] = [byte]0
+        }
     }
-    # checks if a keyboard input has been read
+    # checks if a keyboard input has been read (NOTE: this can readable multiple queued keypresses)
     while ([Console]::KeyAvailable) {
         $key = [console]::ReadKey()
         if ($key.Key -eq "Enter") {
-            $out_buffer = $encoding.GetBytes($out_string)
+            # send the out_string
+            $out_buffer = $encoding.GetBytes($out_string + "`n")
             $out_bytes = $tcp_stream.Write($out_buffer, 0, $out_string.Length)
+
+            # write to the screen
             Write-Host "$($tcp_client.Client.LocalEndPoint)> " -ForegroundColor Cyan -NoNewline
             Write-Host $out_string -ForegroundColor Cyan
+
+            # clears the out_string
             $out_string = ""
             break
         } elseif ($key.Key -eq "Escape") {
-            # this will eventually clear the out_string variable
+            # this is a placeholder that will be used to cancel the input
         } else {
             $out_string += $key.KeyChar
         }
