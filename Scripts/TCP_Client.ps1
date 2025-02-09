@@ -1,6 +1,12 @@
 $Host.UI.RawUI.WindowTitle = "TCP CLIENT"
 
-Write-Host "------------------------- TCP CLIENT -------------------------" -ForegroundColor Yellow
+# resize the powershell window
+$Window = $Host.UI.RawUI.WindowSize
+$Window.Height = 25
+$Window.Width  = 88
+$Host.UI.RawUI.Set_WindowSize($Window)
+
+Write-Host "-------------------------------------- TCP CLIENT -------------------------------------" -ForegroundColor Yellow
 $dst_ip = Read-Host -Prompt "Destination IP Address"
 [int32]$dst_port = Read-Host -Prompt "Destination Port"
 
