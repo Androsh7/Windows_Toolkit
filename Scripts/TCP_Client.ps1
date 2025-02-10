@@ -25,7 +25,7 @@ catch {
     Exit
 }
 Clear-Host
-$Host.UI.RawUI.WindowTitle = "TCP CLIENT - $($tcp_client.Client.LocalEndPoint) CONNECTED TO $($tcp_client.Client.RemoteEndPoint)"
+$Host.UI.RawUI.WindowTitle = "TCP CLIENT CONNECTION $($tcp_client.Client.LocalEndPoint) --> $($tcp_client.Client.RemoteEndPoint)"
 Write-Host "---------------------------------------------------------------------------------------" -ForegroundColor Yellow
 Write-Host "TCP CLIENT CONNECTION $($tcp_client.Client.LocalEndPoint) --> $($tcp_client.Client.RemoteEndPoint)" -ForegroundColor Yellow
 Write-Host "---------------------------------------------------------------------------------------" -ForegroundColor Yellow
@@ -33,50 +33,68 @@ Write-Host "--------------------------------------------------------------------
 # grab stream reader
 $tcp_stream = $tcp_client.GetStream()
 
-# set the output variables
-$encoding = [System.Text.Encoding]::ASCII
-$out_string = ""
-
-# set the input variables
+# set the read variables
+$read_string = ""
 $read_buffer = New-Object byte[] 1024
+$key_read = $true
+
+# set the write variables
+$write_string = ""
+$encoding = [System.Text.Encoding]::ASCII
 
 while ($tcp_client.Connected) {
 
     # checks if data is available to be printed
     if ($tcp_stream.DataAvailable) {
+        if ($key_read) {
+            0..$($write_string.Length) | ForEach-Object { Write-Host "`b `b" -NoNewline }
+            $key_read = $false
+        }
 
         # read the input
         $read_bytes = $tcp_stream.Read($read_buffer, 0, 1024)
-        $out_string = [Text.Encoding]::ASCII.GetString($read_buffer, 0, $read_bytes)
+        $read_string = [Text.Encoding]::ASCII.GetString($read_buffer, 0, $read_bytes)
 
         # write to the screen
         Write-Host "$($tcp_client.Client.RemoteEndPoint)> " -ForegroundColor Green -NoNewline
-        Write-Host $out_string -NoNewline -ForegroundColor Green
+        Write-Host $read_string -NoNewline -ForegroundColor Green
 
         # clear the read buffer
         0..${read_bytes} | ForEach-Object {
             $read_buffer[$_] = [byte]0
         }
     }
-    # checks if a keyboard input has been read (NOTE: this can readable multiple queued keypresses)
+    if (-not $key_read) {
+        Write-Host $write_string -NoNewline
+        [console]::SetCursorPosition($write_string.Length, [console]::CursorTop)
+        $key_read = $true
+    }
+    # checks if a keyboard input has been read (NOTE: this can read pmultiple queued keypresses)
     while ([Console]::KeyAvailable) {
+        $key_read = $true
         $key = [console]::ReadKey()
         if ($key.Key -eq "Enter") {
-            # send the out_string
-            $out_buffer = $encoding.GetBytes($out_string + "`n")
-            $out_bytes = $tcp_stream.Write($out_buffer, 0, $out_string.Length)
+            # send the write_string
+            $write_string = $write_string + "`n"
+            $out_buffer = $encoding.GetBytes($write_string)
+            $out_bytes = $tcp_stream.Write($out_buffer, 0, $write_string.Length)
 
             # write to the screen
             Write-Host "$($tcp_client.Client.LocalEndPoint)> " -ForegroundColor Cyan -NoNewline
-            Write-Host $out_string -ForegroundColor Cyan
+            Write-Host "$($write_string.Remove($write_string.Length - 1))" -ForegroundColor Cyan
 
-            # clears the out_string
-            $out_string = ""
+            # clears the write_string
+            $write_string = "" 
             break
+        } elseif ($key.Key -eq "Backspace") {
+            Write-Host " `b" -NoNewline
+            if ($write_string.Length -ne 0) {
+                $write_string = $write_string.Remove($write_string.Length - 1)
+            }
         } elseif ($key.Key -eq "Escape") {
             # this is a placeholder that will be used to cancel the input
         } else {
-            $out_string += $key.KeyChar
+            $write_string += $key.KeyChar
         }
-    }  
+    }
 }
