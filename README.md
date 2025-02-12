@@ -9,7 +9,8 @@ The purpose of this toolkit is to provide a simple replication of many common ne
 # Feature List
 
 - TCP Transmitter/Receiver - These currently work but only allow one-way traffic (I.E: Transmitter can't show replies and Receiver can't send packets)
-  - [ ] WIP - allow for two-way communciation
+  - [X] TCP_Client.ps1 - allow for two-way communciation
+  - [ ] WIP - TCP_Receiver.ps1 - allow for two-way communication
 - UDP Transmitter/Receiver - Similar to the TCP Transmitter/Receiver this currently only allows for one-way communication
   - [ ] WIP - allow for two-way communciation
 - TCP Scanner - TCP full-connect scanner that uses PS job to scan multiple ports at once
