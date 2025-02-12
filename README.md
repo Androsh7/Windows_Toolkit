@@ -31,18 +31,17 @@ The purpose of this toolkit is to provide a simple replication of many common ne
 # Compatibility with Powershell Version 7+ (pwsh.exe)
 | Name | powershell.exe | pwsh.exe | Notes |
 | - | - | - | - |
-| powershell_web_server.ps1 | <span style="background-color: green; color: black">Compatible</span> | <span style="background-color: green; color: black">Compatible</span> | |
-| AD Tools | <span style="background-color: yellow; color: black">N/A</span> | <span style="background-color: yellow; color: black">N/A</span> | These tools are still WIP |
-| Get_Strings.ps1 | <span style="background-color: green; color: black">Compatible</span> | <span style="background-color: green; color: black">Compatible</span> | uses version check for compatibility |
-| ICMP_Scanner.ps1 | <span style="background-color: green; color: black">Compatible</span> | <span style="background-color: green; color: black">Compatible</span> | |
-| Remote_Shell.ps1 | <span style="background-color: green; color: black">Compatible</span> | <span style="background-color: green; color: black">Compatible</span> | |
-| System_Info.ps1 | <span style="background-color: green; color: black">Compatible</span> | <span style="background-color: green; color: black">Compatible</span> | |
-| TCP_Client.ps1 | <span style="background-color: green; color: black">Compatible</span> | <span style="background-color: green; color: black">Compatible</span> | |
-| TCP_Receiver.ps1 | <span style="background-color: green; color: black">Compatible</span> | <span style="background-color: green; color: black">Compatible</span> | |
-| TCP_Scanner.ps1 | <span style="background-color: red; color: black">Incompatible</span> | <span style="background-color: green; color: black">Compatible</span> | Running in version 5.1 (or earlier) breaks the formatting and has a significant performance impact |
-| UDP_Receiver.ps1 | <span style="background-color: green; color: black">Compatible</span> | <span style="background-color: green; color: black">Compatible</span> | |
-| UDP_Transmitter.ps1 | <span style="background-color: green; color: black">Compatible</span> | <span style="background-color: green; color: black">Compatible</span> | |
-
+| powershell_web_server.ps1 | ✅ Compatible | ✅ Compatible | |
+| AD Tools | ⚠️ N/A | ⚠️ N/A | These tools are still WIP |
+| Get_Strings.ps1 | ✅ Compatible | ✅ Compatible | uses version check for compatibility |
+| ICMP_Scanner.ps1 | ✅ Compatible | ✅ Compatible | |
+| Remote_Shell.ps1 | ✅ Compatible | ✅ Compatible | |
+| System_Info.ps1 | ✅ Compatible | ✅ Compatible | |
+| TCP_Client.ps1 | ✅ Compatible | ✅ Compatible | |
+| TCP_Receiver.ps1 | ✅ Compatible | ✅ Compatible | |
+| TCP_Scanner.ps1 | ❌ Incompatible | ✅ Compatible | Running in version 5.1 (or earlier) breaks the formatting and has a significant performance impact |
+| UDP_Receiver.ps1 | ✅ Compatible | ✅ Compatible | |
+| UDP_Transmitter.ps1 | ✅ Compatible | ✅ Compatible | |
 # Escaping Email and Web Filters
 
 Generally email filters will restrict sending .ps1 files, furthermore certain web filters will prevent downloading .ps1 files.
