@@ -2,7 +2,7 @@
 
 ![image](https://github.com/user-attachments/assets/61ec3900-cdc9-48f8-9bf6-6ffc58d656ce)
 
-This is a Windows Toolkit written exclusively in PowerShell version 5.1 (and a bit of html) with no external modules.
+This is a Windows Toolkit written exclusively in PowerShell version 5.1 (see note about compatibility with pwsh.exe) with no external modules.
 
 The purpose of this toolkit is to provide a simple replication of many common networking and basic sysadmin tools which can be used in a stock windows environment without administrator permissions.
 
@@ -27,6 +27,21 @@ The purpose of this toolkit is to provide a simple replication of many common ne
   - [X] Get_Strings.ps1 - a script that parses any file for valid ASCII strings of a specified length and then returns a notepad with the results
   - [X] Remote_Shell.ps1 - a script that provides a more advanced powershell remoting (as opposed to Enter-PSSession) with prefab commands and other integrated tools
   - [ ] WIP - AD_Lookup.ps1 - This script is currently non-functional, eventually this will be integrated into the Domain_Computer_Query.html and Domain_User_Query.html pages to allow for queries done through the web form
+
+# Compatibility with Powershell Version 7+ (pwsh.exe)
+| Name | powershell.exe | pwsh.exe | Notes |
+| - | - | - | - |
+| powershell_web_server.ps1 | <span style="background-color: green; color: black">Compatible</span> | <span style="background-color: green; color: black">Compatible</span> | |
+| AD Tools | <span style="background-color: yellow; color: black">N/A</span> | <span style="background-color: yellow; color: black">N/A</span> | These tools are still WIP |
+| Get_Strings.ps1 | <span style="background-color: green; color: black">Compatible</span> | <span style="background-color: green; color: black">Compatible</span> | uses version check for compatibility |
+| ICMP_Scanner.ps1 | <span style="background-color: green; color: black">Compatible</span> | <span style="background-color: green; color: black">Compatible</span> | |
+| Remote_Shell.ps1 | <span style="background-color: green; color: black">Compatible</span> | <span style="background-color: green; color: black">Compatible</span> | |
+| System_Info.ps1 | <span style="background-color: green; color: black">Compatible</span> | <span style="background-color: green; color: black">Compatible</span> | |
+| TCP_Client.ps1 | <span style="background-color: green; color: black">Compatible</span> | <span style="background-color: green; color: black">Compatible</span> | |
+| TCP_Receiver.ps1 | <span style="background-color: green; color: black">Compatible</span> | <span style="background-color: green; color: black">Compatible</span> | |
+| TCP_Scanner.ps1 | <span style="background-color: red; color: black">Incompatible</span> | <span style="background-color: green; color: black">Compatible</span> | Running in version 5.1 (or earlier) breaks the formatting and has a significant performance impact |
+| UDP_Receiver.ps1 | <span style="background-color: green; color: black">Compatible</span> | <span style="background-color: green; color: black">Compatible</span> | |
+| UDP_Transmitter.ps1 | <span style="background-color: green; color: black">Compatible</span> | <span style="background-color: green; color: black">Compatible</span> | |
 
 # Escaping Email and Web Filters
 
