@@ -39,7 +39,7 @@ if (Test-Path $selectedFile) {
 # grab byte stream
 Write-Host "Grabbing Byte Stream for $selectedFile"
 
-# backwards compatibility powershell.exe
+# backwards compatibility for powershell.exe
 if ($host.Version.Major -lt 7) {
     $byte_stream = Get-Content -Raw $selectedFile -Encoding Byte 
 } else {
