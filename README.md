@@ -1,4 +1,4 @@
-# Windows Toolkit
+# Windows Toolkit - Version 0.8
 
 ![image](https://github.com/user-attachments/assets/8741af83-a114-4ac2-8282-9ff2c8216e8a)
 
