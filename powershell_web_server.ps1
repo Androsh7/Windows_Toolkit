@@ -149,9 +149,14 @@ function Shutdown_Actions {
 }
 
 $script_list = (Get-ChildItem -Path "${PSScriptRoot}/Scripts/" -Filter "*.ps1").Name
-function Start_Script ([string]$script_name) {
+function Start_Script ([string]$script_name, [bool]$admin) {
     try {
-        Start-Process -FilePath "conhost.exe" -ArgumentList "${default_powershell} -executionpolicy Bypass -File ${PSScriptRoot}/Scripts/${script_name}"
+        if ($admin) {
+            Start-Process -FilePath "conhost.exe" -ArgumentList "${default_powershell} -executionpolicy Bypass -File ${PSScriptRoot}/Scripts/${script_name}" -Verb runas
+        } else {
+            Start-Process -FilePath "conhost.exe" -ArgumentList "${default_powershell} -executionpolicy Bypass -File ${PSScriptRoot}/Scripts/${script_name}"
+        }
+        
         "$(TimeStamp): Starting Script ${script_name}" | Tee-Object -FilePath $logfile -Append | Write-Host 
         $response.StatusCode = 200
         $response.StatusDescription = "OK"
@@ -313,6 +318,9 @@ while ($listener.IsListening) {
             "/Remote_Desktop" {
                 Start-Process -FilePath "mstsc.exe"
                 Respond_OK -close $true
+            }
+            "/Current_Users_Admin" {
+                Start_Script -script_name "Current_Users.ps1" -admin $true
             }
             # This is broken right now fix later
             "/domain_user_query_submit" {

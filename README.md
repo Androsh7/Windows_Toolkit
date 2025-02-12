@@ -25,6 +25,7 @@ The purpose of this toolkit is to provide a simple replication of many common ne
 - Utilities
   - [X] SystemInfo.ps1 - a script that runs the "systeminfo" command and then opens up a notepad with the results
   - [X] Get_Strings.ps1 - a script that parses any file for valid ASCII strings of a specified length and then returns a notepad with the results
+  - [X] Get_Strings.ps1 - a script to constantly query all users and their sessions (when run as admin this can detect runas processes and windows service accounts)
   - [X] View_Login.ps1 - a script to parse security event logs for all successful and failed login attempts by a user
   - [X] Remote_Shell.ps1 - a script that provides a more advanced powershell remoting (as opposed to Enter-PSSession) with prefab commands and other integrated tools
   - [ ] WIP - AD_Lookup.ps1 - This script is currently non-functional, eventually this will be integrated into the Domain_Computer_Query.html and Domain_User_Query.html pages to allow for queries done through the web form
@@ -34,6 +35,7 @@ The purpose of this toolkit is to provide a simple replication of many common ne
 | - | :-: | :-: | - |
 | powershell_web_server.ps1 | ✅ | ✅ | |
 | AD Tools | ⚠️ | ⚠️ | These tools are still WIP |
+| Current_Users.ps1 | ✅ | ✅ | Running as a user is only allowed with version 7.5 |
 | Get_Strings.ps1 | ✅ | ✅ | uses version check for compatibility |
 | ICMP_Scanner.ps1 | ✅  | ✅ | |
 | Remote_Shell.ps1 | ✅  | ✅ | |
