@@ -3,6 +3,18 @@ $Host.UI.RawUI.WindowTitle = "TCP Full-connect Scanner"
 $max_jobs = 30
 $debug = $false
 
+# Checks the version to ensure the program is being run with pwsh.exe
+# NOTE: while it is possible to run this script in powershell.exe it comes at a significant performance penalty and breaks the formatting
+if ($Host.Version.Major -lt 7) {
+    Write-Host "This script is not compatible with powershell versions before major build 7"
+    Write-Host "Your powershell version is $($Host.Version)"
+    Write-Host "To run this script anyways enter DEBUG otherwise press ENTER to close this window: " -NoNewline
+    $userinput = Read-Host
+    if ($userinput -notcontains "DEBUG") {
+        exit
+    }
+}
+
 while ($true) {
     Clear-Host
     Write-Host "Running TCP_Full_Connect_Scanner.ps1 at $(Get-Date)" -ForegroundColor Cyan
