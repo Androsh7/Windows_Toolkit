@@ -25,6 +25,7 @@ The purpose of this toolkit is to provide a simple replication of many common ne
 - Utilities
   - [X] SystemInfo.ps1 - a script that runs the "systeminfo" command and then opens up a notepad with the results
   - [X] Get_Strings.ps1 - a script that parses any file for valid ASCII strings of a specified length and then returns a notepad with the results
+  - [X] View_Login.ps1 - a script to parse security event logs for all successful and failed login attempts by a user
   - [X] Remote_Shell.ps1 - a script that provides a more advanced powershell remoting (as opposed to Enter-PSSession) with prefab commands and other integrated tools
   - [ ] WIP - AD_Lookup.ps1 - This script is currently non-functional, eventually this will be integrated into the Domain_Computer_Query.html and Domain_User_Query.html pages to allow for queries done through the web form
 
@@ -42,6 +43,7 @@ The purpose of this toolkit is to provide a simple replication of many common ne
 | TCP_Scanner.ps1 | ❌ | ✅ | Running in version 5.1 (or earlier) breaks the formatting and has a significant performance impact |
 | UDP_Receiver.ps1 | ✅ | ✅ | |
 | UDP_Transmitter.ps1 | ✅ | ✅ | |
+| View_Login.ps1 | ✅ | ✅ | Significantly slower in version 5.1 (or earlier) |
 # Escaping Email and Web Filters
 
 Generally email filters will restrict sending .ps1 files, furthermore certain web filters will prevent downloading .ps1 files.
