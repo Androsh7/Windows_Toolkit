@@ -29,19 +29,19 @@ The purpose of this toolkit is to provide a simple replication of many common ne
   - [ ] WIP - AD_Lookup.ps1 - This script is currently non-functional, eventually this will be integrated into the Domain_Computer_Query.html and Domain_User_Query.html pages to allow for queries done through the web form
 
 # Compatibility with Powershell Version 7+ (pwsh.exe)
-| Name | powershell.exe | pwsh.exe | Notes |
-| - | - | - | - |
-| powershell_web_server.ps1 | ✅ Compatible | ✅ Compatible | |
-| AD Tools | ⚠️ N/A | ⚠️ N/A | These tools are still WIP |
-| Get_Strings.ps1 | ✅ Compatible | ✅ Compatible | uses version check for compatibility |
-| ICMP_Scanner.ps1 | ✅ Compatible | ✅ Compatible | |
-| Remote_Shell.ps1 | ✅ Compatible | ✅ Compatible | |
-| System_Info.ps1 | ✅ Compatible | ✅ Compatible | |
-| TCP_Client.ps1 | ✅ Compatible | ✅ Compatible | |
-| TCP_Receiver.ps1 | ✅ Compatible | ✅ Compatible | |
-| TCP_Scanner.ps1 | ❌ Incompatible | ✅ Compatible | Running in version 5.1 (or earlier) breaks the formatting and has a significant performance impact |
-| UDP_Receiver.ps1 | ✅ Compatible | ✅ Compatible | |
-| UDP_Transmitter.ps1 | ✅ Compatible | ✅ Compatible | |
+| Name | powershell.exe (v5.1) | pwsh.exe (v7.5) | Notes |
+| - | :-: | :-: | - |
+| powershell_web_server.ps1 | ✅ | ✅ | |
+| AD Tools | ⚠️ | ⚠️ | These tools are still WIP |
+| Get_Strings.ps1 | ✅ | ✅ | uses version check for compatibility |
+| ICMP_Scanner.ps1 | ✅  | ✅ | |
+| Remote_Shell.ps1 | ✅  | ✅ | |
+| System_Info.ps1 | ✅ | ✅  | |
+| TCP_Client.ps1 | ✅ | ✅  | |
+| TCP_Receiver.ps1 | ✅ | ✅ | |
+| TCP_Scanner.ps1 | ❌ | ✅ | Running in version 5.1 (or earlier) breaks the formatting and has a significant performance impact |
+| UDP_Receiver.ps1 | ✅ | ✅ | |
+| UDP_Transmitter.ps1 | ✅ | ✅ | |
 # Escaping Email and Web Filters
 
 Generally email filters will restrict sending .ps1 files, furthermore certain web filters will prevent downloading .ps1 files.
