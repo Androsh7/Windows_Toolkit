@@ -172,7 +172,7 @@ function Start_Program([string]$program_name, [bool]$noexit, [bool]$admin) {
     if ($noexit) { $argument_list += " -NoExit"}
     try {
         if ($admin) {
-            Start-Process -FilePath "conhost.exe" -ArgumentList $argument_list -Verb runasuser
+            Start-Process -FilePath "conhost.exe" -ArgumentList $argument_list -Verb runas
         } else {
             Start-Process -FilePath "conhost.exe" -ArgumentList $argument_list
         }
@@ -301,7 +301,7 @@ while ($listener.IsListening) {
                 Respond_OK -close $true
             }
             "/Enter_PSSession_Admin" {
-                Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -NoExit -executionpolicy Bypass -Command `$CPU = Read-Host -Prompt `"ComputerName`"; Enter-PSSession -ComputerName `$CPU" -Verb runasuser
+                Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -NoExit -executionpolicy Bypass -Command `$CPU = Read-Host -Prompt `"ComputerName`"; Enter-PSSession -ComputerName `$CPU" -Verb runas
                 Respond_OK -close $true
             }
             "/Enter_PSSession_User" {
