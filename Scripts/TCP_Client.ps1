@@ -35,7 +35,7 @@ $tcp_stream = $tcp_client.GetStream()
 
 # set the read variables
 $read_string = ""
-$read_buffer = New-Object byte[] 1024
+$read_buffer = New-Object byte[] 65536
 $key_read = $true
 
 # set the write variables
@@ -98,3 +98,7 @@ while ($tcp_client.Connected) {
         }
     }
 }
+
+Write-Host "---------------------------------- CONNECTION CLOSED ----------------------------------" -ForegroundColor Yellow
+Write-Host "`nPress ENTER to Exit"
+Read-Host
