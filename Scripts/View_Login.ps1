@@ -1,7 +1,6 @@
-Clear-Host
+$Host.UI.RawUI.WindowTitle = "View Login Events"
 
 # Check if user needs Administrator permissions
-
 try {
     $test_event = Get-WinEvent -LogName "Security" -MaxEvents 1
 }
@@ -30,6 +29,7 @@ while ($true) {
     $LogAge = Read-Host "Enter the number of days to go back in the logs (default is 7)"
     if ($LogAge -eq "") { $LogAge = 7 }
     Write-Host "----- Querying Security logs for User ${UserFilter} in the past ${LogAge} days-----" -ForegroundColor Cyan
+    $Host.UI.RawUI.WindowTitle = "View Login Events for User ${UserFilter} in the past ${LogAge} days"
     $CurrentDate = Get-Date
 
     # Description: This script will parse the security event log for login events and display them in a readable format.
