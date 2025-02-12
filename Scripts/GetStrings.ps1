@@ -39,9 +39,13 @@ if (Test-Path $selectedFile) {
 # grab byte stream
 Write-Host "Grabbing Byte Stream for $selectedFile"
 
-# note: this uses the older Powershell syntax (version 5.1)
-# To make this script compatible with powershell version 7.5 change the command below to: Get-Content -Raw $selectedFile -AsByteStream
-$byte_stream = Get-Content -Raw $selectedFile -Encoding Byte 
+# backwards compatibility powershell.exe
+if ($host.Version.Major -lt 7) {
+    $byte_stream = Get-Content -Raw $selectedFile -Encoding Byte 
+} else {
+    $byte_stream = Get-Content -Raw $selectedFile -AsByteStream
+}
+
 
 # add output file headers
 "GetStrings.ps1 running on $(Get-Date)" > $out_file
