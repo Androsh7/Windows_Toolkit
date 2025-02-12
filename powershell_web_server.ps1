@@ -36,12 +36,14 @@ $context = $null
 $response = $null
 $request = $null
 
-# build a PS-Drive (prevent directory traversal)
+# Build a PS-Drive (prevent directory traversal)
 if (Get-PSDrive -Name "SitePages" -ErrorAction SilentlyContinue) { Remove-PSDrive -Name SitePages }
 $SitePages = New-PSDrive -Name SitePages -PSProvider FileSystem -Root "${PSScriptRoot}\SitePages\"
 if (Get-PSDrive -Name "Files" -ErrorAction SilentlyContinue) { Remove-PSDrive -Name Files }
 $Files = New-PSDrive -Name Files -PSProvider FileSystem -Root "${PSScriptRoot}\Files\"
 
+# Open the website in the default web browser
+Start-Process $prefix
 
 function Respond_OK ([bool]$close) {
     $response.StatusCode = 200
