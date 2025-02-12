@@ -33,7 +33,16 @@ while ($true) {
     $CurrentDate = Get-Date
 
     # Description: This script will parse the security event log for login events and display them in a readable format.
-    Get-WinEvent -LogName "security" | Where-Object {$_.Id -in 4624, 4625, 4723, 4724, 4740 } | ForEach-Object {
+    $query = @"
+    <QueryList>
+        <Query Id="0" Path="Security">
+            <Select Path="Security">
+                *[System[(EventID=4624 or EventID=4625 or EventID=4723 or EventID=4724 or EventID=4740)]]
+            </Select>
+        </Query>
+    </QueryList>
+"@
+    Get-WinEvent -FilterXml $query | ForEach-Object {
         # Build XML object
         $event_xml = [xml]$_.ToXml()
 
