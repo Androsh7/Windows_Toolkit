@@ -17,7 +17,19 @@ $listener.Prefixes.Add($prefix)
 
 # Start the listener
 $listener.Start()
-"$(TimeStamp): Listening for incoming requests on $prefix" | Tee-Object -FilePath $logfile -Append | Write-Host -ForegroundColor Cyan 
+"$(TimeStamp): Listening for incoming requests on $prefix" | Tee-Object -FilePath $logfile -Append | Write-Host -ForegroundColor Cyan
+
+# Checks to see if pwsh.exe is installed
+$default_powershell = $null
+try {
+    Start-Process pwsh.exe -ArgumentList "Exit"
+    Write-Host "$(TimeStamp): pwsh.exe is installed, this will be used as the default program to run powershell scripts"
+    $default_powershell = "pwsh.exe"
+}
+catch {
+    Write-Host "$(TimeStamp): pwsh.exe is not installed, defaulting to powershell.exe (note this will impact performance)"
+    $default_powershell = "powershell.exe"
+}
 
 # Create global variables
 $context = $null
@@ -137,7 +149,7 @@ function Shutdown_Actions {
 $script_list = (Get-ChildItem -Path "${PSScriptRoot}/Scripts/" -Filter "*.ps1").Name
 function Start_Script ([string]$script_name) {
     try {
-        Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -executionpolicy Bypass -File ${PSScriptRoot}/Scripts/${script_name}"
+        Start-Process -FilePath "conhost.exe" -ArgumentList "${default_powershell} -executionpolicy Bypass -File ${PSScriptRoot}/Scripts/${script_name}"
         "$(TimeStamp): Starting Script ${script_name}" | Tee-Object -FilePath $logfile -Append | Write-Host 
         $response.StatusCode = 200
         $response.StatusDescription = "OK"
