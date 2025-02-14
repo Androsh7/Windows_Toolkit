@@ -1,31 +1,20 @@
-$Host.UI.RawUI.WindowTitle = "TCP Full-connect Scanner"
+$Host.UI.RawUI.WindowTitle = "TCP_Scanner"
 
-$max_jobs = 30
-$debug = $false
+$max_connections = 100 # increase to speed up scans (100 is default)
+$timeout = 1500 # milliseconds until a port is deemed to be closed (1500 is default)
 
-# Checks the version to ensure the program is being run with pwsh.exe
-# NOTE: while it is possible to run this script in powershell.exe it comes at a significant performance penalty and breaks the formatting
-if ($Host.Version.Major -lt 7) {
-    Write-Host "This script is not compatible with powershell versions before major build 7"
-    Write-Host "Your powershell version is $($Host.Version)"
-    Write-Host "To run this script anyways enter DEBUG otherwise press ENTER to close this window: " -NoNewline
-    $userinput = Read-Host
-    if ($userinput -notcontains "DEBUG") {
-        exit
-    }
-}
+$show_updates = $true # prints an update every 1,000 ports
+
+$debug = $false # prints information on individual socket connections (not recommended)
 
 while ($true) {
     Clear-Host
-    Write-Host "Running TCP_Full_Connect_Scanner.ps1 at $(Get-Date)" -ForegroundColor Cyan
-    $target = Read-Host "Enter the target IP address or hostname"
+    Write-Host "Running TCP_Scanner.ps1 at $(Get-Date)" -ForegroundColor Cyan
+    $target = [IpAddress](Read-Host "Enter the target IP address or hostname")
     $portsInput = Read-Host "Enter the ports to scan (e.g. 80, 443-500, 8080)"
     Write-Host "========================================================================" -ForegroundColor Cyan
-    function Enter_to_Exit {
-        Read-Host "Press Enter to exit"
-        Exit
-    }
 
+    # takes port ranges and breaks them into individual ports (I.E: 1-5 to 1,2,3,4,5)
     function Parse_Ports {
         param (
             [string]$portsInput
@@ -41,107 +30,82 @@ while ($true) {
         return $ports
     }
 
+    # creates port array
     $ports = Parse_Ports -portsInput $portsInput
 
-    $active_jobs = @()
-    $results = @()
-    for ($i = 0; $i -lt $ports.Length; $i += 1) {
-        
-        # Create Jobs
-        if ($i % $max_jobs -eq 0) {
-            if ($i -ne 0) {
-                [System.Console]::SetCursorPosition(0, [System.Console]::CursorTop - 2)
-            }
-            $remaining_jobs = [int](@($max_jobs, $($ports.length - $results.length)) | Measure-Object -Minimum).Minimum
-            Write-Host "Scanning [" -NoNewline
-            foreach ($space in 2..${remaining_jobs}) { Write-Host " " -NoNewline}
-            Write-Host "]" -NoNewline
-            foreach ($space in 0..$($max_jobs - $remaining_jobs)) { Write-HosT " " -NoNewLine}
-            [System.Console]::SetCursorPosition([System.Console]::CursorLeft - $remaining_jobs - $($max_jobs - $remaining_jobs) - 1, [System.Console]::CursorTop)
-        }
-        else {Write-Host "=" -NoNewline}
-        $new_job = New-Object -TypeName psobject
-        $new_job | Add-Member -MemberType NoteProperty -Name "Port" -Value $ports[$i]
-        $job = Start-Job -Name "TCP_SCANNER_JOB" -ScriptBlock {
-            param ($target, $port)
-            $tcpClient = New-Object System.Net.Sockets.TcpClient
-            try {
-                $tcpClient.Connect($target, $port)
-                $tcpClient.Close()
-                return $true
-            } catch {
-                return $false
-            }
-        } -ArgumentList $target, $ports[$i]
-        $new_job | Add-Member -MemberType NoteProperty -Name "Job" -Value $job
-        $active_jobs += $new_job
-        if ($debug) { Write-Host "Created Job ID: $($job.Id) out of $($active_jobs.Length)" }
-
-        # grab output of jobs
-        if (($active_jobs.Length % $max_jobs -eq 0 -and $active_jobs.Length -ne 0) -or $active_jobs.Length + $results.Length -eq $ports.Length) {
-            Write-Host ""
-            $repetitions = 0
-            For ($z = 0; $z -lt $active_jobs.Length; $z += 1) {
-                if ($active_jobs[$z].Job.State -ne "Completed") { 
-                    Start-Sleep -Milliseconds 100
-                    $repetitions += 1
-                    if ($repetitions -eq 1) { 
-                        if ($debug) { Write-Host "Waiting on Job"  -NoNewline} 
-                        $z -= 1 
-                    }
-                    elseif ($repetitions -lt 20) { 
-                        if ($debug) { write-host " ." -NoNewline }
-                        $z -= 1 
-                    } # this is to negate incrementing $z by the continue command
-                    else { 
-                        if ($debug) { write-host " skipping" } 
-                        $repetitions = 0;  $z -= 1 
-                    }
-                    continue 
-                }
-                if ($repetitions -gt 0) { 
-                    if ($debug) { Write-Host "" }
-                    $repetitions = 0
-                } # formatting
-
-                if ($debug) { Write-Host "Receiving Job ID: $($active_jobs[$z].Job.Id)" }
-                $result = Receive-Job -Job $active_jobs[$z].Job
-                $result_obj = New-Object -TypeName psobject
-                $result_obj | Add-Member -MemberType NoteProperty -Name "Port" -Value $active_jobs[$z].Port
-                $result_obj | Add-Member -MemberType NoteProperty -Name "Result" -Value $result
-                $results += $result_obj
-            }
-            Write-Host "Scanned $($results.Length) of $($ports.Length) ports"
-            $global:active_jobs = @()
-            Get-Job | Where-Object {$_.Name -eq "TCP_SCANNER_JOB"} | ForEach-Object { Remove-Job $_}
-        }
+    # builds the tcp_clients
+    $connectors = @()
+    1..${max_connections} | ForEach-Object {
+        $connector = New-Object psobject
+        # States: 
+        # 0 = ready to connect
+        # 1 = waiting to connect
+        $connector | Add-Member -MemberType NoteProperty -Name "State" -Value 0
+        $connector | Add-Member -MemberType NoteProperty -Name "Port" -Value $null
+        $connector | Add-Member -MemberType NoteProperty -Name "Time" -Value $null
+        $connector | Add-Member -MemberType NoteProperty -Name "Tcp_Client" -Value $(New-Object System.Net.Sockets.TcpClient)
+        $connectors += $connector
     }
+    if ($debug) { Write-Host "Setup $($connectors.Count) connectors" -ForegroundColor Yellow }
 
-    Write-Host "========================================================================" -ForegroundColor Cyan
-    For ($i = 0; $i -lt $results.Length; $i += 1) {
-        $start_state = $results[$i].Result
-        $start_port = $results[$i].Port
-        $new_list = @($start_port)
-        while ($true) {
-            $i += 1
-            if ($results[$i].Result -eq $start_state -and $results[$i].Port -eq $new_list[-1] + 1) {
-                $new_list += $results[$i].Port
-            } else {
-                $i -= 1
+    # run the scan
+    $port_iter = 0
+    $quit = $false
+    $stopWatch = [System.Diagnostics.Stopwatch]::StartNew()
+
+    while (-not $quit) {
+        # start the connections
+        0..$($connectors.length - 1) | Where-Object { $connectors[$_].State -eq 0 } | ForEach-Object {
+            if ($port_iter -gt $ports.Count) {
+                $quit = $true
                 break
             }
+            $connectors[$_].Tcp_Client.ConnectAsync($target, $ports[$port_iter]) 1>$null
+            $connectors[$_].Port = $ports[$port_iter]
+            $connectors[$_].Time = $stopWatch.Elapsed
+            $connectors[$_].State = 1
+            if ($debug) { Write-Host "Setup TCP_Client $_ - ${target}:$($connectors[$_].Port) - Status $($connectors[$_].State) - Time $($connectors[$_].Time)" -ForegroundColor Yellow }
+            if ($show_updates -and $port_iter % 1000 -eq 0) {
+                Write-Host "Scanned $($port_iter) of $($ports.Count) ports" -ForegroundColor Yellow
+            }
+            $port_iter++
         }
 
-        # writes the results to the list
-        if ($new_list.length -eq 1) {
-            if ($start_state) { Write-Host "$target TCP Port  $start_port OPEN" -ForegroundColor Green}
-            else { Write-Host "$target TCP Port  $start_port CLOSED" -ForegroundColor Red}
-        } else {
-            if ($start_state) { Write-Host "$target TCP Ports $($new_list[0])-$($new_list[-1]) OPEN" -ForegroundColor Green}
-            else { Write-Host "$target TCP Ports $($new_list[0])-$($new_list[-1]) CLOSED" -ForegroundColor Red}
+        # check on connections
+        0..$($connectors.Length - 1) | ForEach-Object {
+            # check if connection is successful
+            if ($connectors[$_].Tcp_Client.Connected -eq $true) {
+                if ($debug) { Write-Host "Receiving TCP_Client $_ - ${target}:$($connectors[$_].Port) - " -ForegroundColor Yellow -NoNewline }
+                Write-Host "Port $($connectors[$_].Port) is open" -ForegroundColor Green
+                $connectors[$_].Tcp_Client.Client.Disconnect($true)
+            }
+            # check if connection failed
+            elseif ($stopWatch.Elapsed.TotalMilliseconds - $connectors[$_].Time.TotalMilliseconds -gt $timeout) {
+                if ($debug) { Write-Host "Receiving TCP_Client $_ - ${target}:$($connectors[$_].Port) - " -ForegroundColor Yellow -NoNewline }
+                if ($debug) { Write-Host "Port $($connectors[$_].Port) is closed" -ForegroundColor Red }
+            }
+            # skip if connection is still pending
+            else {
+                return
+            }
+
+            # reset connector
+            $connectors[$_].Tcp_Client.Dispose()
+            $connectors[$_].Tcp_Client = New-Object System.Net.Sockets.TcpClient
+            $connectors[$_].Time = $null
+            $connectors[$_].Port = $null
+            $connectors[$_].State = 0
         }
     }
+    Write-Host "========================================================================" -ForegroundColor Cyan
+    Write-Host "Scanned $($ports.Count) ports in $([math]::Round($stopWatch.Elapsed.TotalSeconds, 2)) seconds" -ForegroundColor Cyan
 
-    $userIn = Read-Host "Press ENTER to continue or Q to quit"
-    if ($userIn -contains "q") { exit }
+    # destroy connector objects
+    $connectors | ForEach-Object {
+        $_.Tcp_Client.Dispose()
+    }
+    $connectors.Clear()
+
+    $userinput = Read-Host "Press Enter to continue or Q to quit"
+    if ($userinput -match "Q") { exit }
 }
