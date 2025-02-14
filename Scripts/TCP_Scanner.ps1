@@ -94,12 +94,38 @@ function Parse_Ports {
 while ($true) {
     Clear-Host
     Write-Host "Running TCP_Scanner.ps1 at $(Get-Date)" -ForegroundColor Cyan
-    $target = [IpAddress](Read-Host "Enter the target IP address or hostname")
+    $target = Read-Host "Enter the target IP address or hostname"
+
+    # attempt to resolve the target
+    if ($target -match "^(\d{1,3}\.){3}\d{1,3}$") {
+        $target = [IPAddress]$target
+    } else {
+        try {
+            Write-Host "Attempting to resolve $target" -ForegroundColor Yellow
+            $dns_resolution = Resolve-DnsName -Name $target -ErrorAction Stop
+            $target = [ipaddress]( $dns_resolution | Where-Object { $_.Type -eq "A" } | Select-Object -First 1).IPAddress
+        }
+        catch {
+            Write-Host "Failed to resolve the provided hostname: $target" -ForegroundColor Red
+            Write-Host "Aborting scan" -ForegroundColor Red
+            Write-Host "Press ENTER to continue"
+            Read-Host
+            continue
+        }
+    }
     $portsInput = Read-Host "Enter the ports to scan (e.g. 80, 443-500, 8080)"
-    Write-Host "========================================================================" -ForegroundColor Cyan
 
     # creates port array
-    $ports = Parse_Ports -portsInput $portsInput
+    $ports = Parse_Ports -portsInput $portsInput | Where-Object { $_ -gt 0 -and $_ -lt 65536 } | Sort-Object -Unique
+
+    if ($ports.Count -eq 0) {
+        Write-Host "No ports specified aborting scan" -ForegroundColor Red
+        Write-Host "Press ENTER to continue"
+        Read-Host
+        continue
+    }
+    
+    Write-Host "========================================================================" -ForegroundColor Cyan
 
     # builds the tcp_clients
     $connectors = @()
