@@ -16,18 +16,24 @@ $prefix = "http://127.0.0.1:9000/"
 $listener.Prefixes.Add($prefix)
 
 # Start the listener
-$listener.Start()
-"$(TimeStamp): Listening for incoming requests on $prefix" | Tee-Object -FilePath $logfile -Append | Write-Host -ForegroundColor Cyan
+try {
+    $listener.Start()
+    "$(TimeStamp): Listening for incoming requests on $prefix" | Tee-Object -FilePath $logfile -Append | Write-Host -ForegroundColor Cyan
+} catch {
+    Write-Host "$(TimeStamp): Failed to listener on $prefix" -ForegroundColor Red
+    Write-Host "$(TimeStamp): Aborting program" -ForegroundColor Red
+    Exit
+}
 
 # Checks to see if pwsh.exe is installed
 $default_powershell = $null
 try {
     Start-Process pwsh.exe -ArgumentList "Exit"
-    Write-Host "$(TimeStamp): pwsh.exe is installed, this will be used as the default program to run powershell scripts"
+    Write-Host "$(TimeStamp): pwsh.exe is installed, this will be used as the default program to run powershell scripts" -ForegroundColor Yellow
     $default_powershell = "pwsh.exe"
 }
 catch {
-    Write-Host "$(TimeStamp): pwsh.exe is not installed, defaulting to powershell.exe (note this will impact performance)"
+    Write-Host "$(TimeStamp): pwsh.exe is not installed, defaulting to powershell.exe (note this will impact performance)" -ForegroundColor Yellow
     $default_powershell = "powershell.exe"
 }
 
