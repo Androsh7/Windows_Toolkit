@@ -8,8 +8,17 @@ function TimeStamp {
 # Create a log file
 $date = $(Get-Date)
 $logfile = "${PSScriptRoot}\Logs\logfile_$($date.Month)-$($date.Day)-$($date.Year).txt"
-Write-Host "Writing log to $logfile"
-"---------- Began logging on $(TimeStamp) ----------" >> $logfile
+try {
+    "---------- Began logging on $(TimeStamp) ----------" >> $logfile
+    Write-Host "$(TimeStamp): Writing log to $logfile" -ForegroundColor Yellow
+}
+catch {
+    Write-Host "$(TimeStamp): Failed to write to log file: $logfile" -ForegroundColor Red
+    Write-Host "$(TimeStamp): Program will log to `$null" -ForegroundColor Red
+    $logfile = $null
+}
+
+
 
 # Listening prefix
 $prefix = "http://127.0.0.1:9000/"
@@ -20,7 +29,7 @@ try {
     $listener.Start()
     "$(TimeStamp): Listening for incoming requests on $prefix" | Tee-Object -FilePath $logfile -Append | Write-Host -ForegroundColor Cyan
 } catch {
-    Write-Host "$(TimeStamp): Failed to listener on $prefix" -ForegroundColor Red
+    Write-Host "$(TimeStamp): Failed to start listener on $prefix" -ForegroundColor Red
     Write-Host "$(TimeStamp): Aborting program" -ForegroundColor Red
     Exit
 }
