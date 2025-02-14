@@ -104,6 +104,7 @@ while ($true) {
             Write-Host "Attempting to resolve $target" -ForegroundColor Yellow
             $dns_resolution = Resolve-DnsName -Name $target -ErrorAction Stop
             $target = [ipaddress]( $dns_resolution | Where-Object { $_.Type -eq "A" } | Select-Object -First 1).IPAddress
+            Write-Host "Resolved to $target" -foreground Cyan
         }
         catch {
             Write-Host "Failed to resolve the provided hostname: $target" -ForegroundColor Red
