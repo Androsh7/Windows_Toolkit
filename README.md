@@ -13,7 +13,7 @@ The purpose of this toolkit is to provide a simple replication of many common ne
   - [ ] WIP - TCP_Receiver.ps1 - allow for two-way communication
 - UDP Transmitter/Receiver - Similar to the TCP Transmitter/Receiver this currently only allows for one-way communication
   - [ ] WIP - allow for two-way communciation
-- TCP Scanner - TCP full-connect scanner that uses PS job to scan multiple ports at once
+- TCP Scanner - TCP full-connect scanner that uses multiple tcp sockets attempting asynchronous connections
 - ICMP Scanner - ICMP ping sweep scanner that pings each specified host or a range of hosts one-by-one
   - [ ] WIP - optimize with PS jobs to allow multiple simultaneous scans 
 - Basic Shortcuts - The program currently has shortcuts for the following programs:
@@ -42,7 +42,7 @@ The purpose of this toolkit is to provide a simple replication of many common ne
 | System_Info.ps1 | ✅ | ✅  | |
 | TCP_Client.ps1 | ✅ | ✅  | |
 | TCP_Receiver.ps1 | ✅ | ✅ | |
-| TCP_Scanner.ps1 | ❌ | ✅ | Running in version 5.1 (or earlier) breaks the formatting and has a significant performance impact |
+| TCP_Scanner.ps1 | ✅ | ✅ | |
 | UDP_Receiver.ps1 | ✅ | ✅ | |
 | UDP_Transmitter.ps1 | ✅ | ✅ | |
 | View_Login.ps1 | ✅ | ✅ | Significantly slower in version 5.1 (or earlier) |
