@@ -7,28 +7,96 @@ $show_updates = $true # prints an update every 1,000 ports
 
 $debug = $false # prints information on individual socket connections (not recommended)
 
+$TCPPorts = @{
+    20   = "FTP (Data Transfer)"
+    21   = "FTP (Control)"
+    22   = "SSH"
+    23   = "Telnet"
+    25   = "SMTP"
+    53   = "DNS Zone Transfers"
+    80   = "HTTP"
+    110  = "POP3"
+    135  = "RPC"
+    139  = "NetBIOS Session Service"
+    143  = "IMAP"
+    179  = "BGP"
+    389  = "LDAP"
+    443  = "HTTPS"
+    445  = "SMB"
+    465  = "SMTPS (SMTP over SSL)"
+    514  = "Syslog (TCP - Less Common)"
+    587  = "SMTP (Mail Submission)"
+    636  = "LDAPS"
+    873  = "Rsync"
+    902  = "VMware ESXi Remote Console"
+    912  = "VMware Authentication Daemon"
+    989  = "FTPS (Data)"
+    990  = "FTPS (Control)"
+    993  = "IMAPS"
+    995  = "POP3S"
+    1080 = "SOCKS Proxy"
+    1194 = "OpenVPN"
+    1433 = "MSSQL"
+    1521 = "Oracle Database"
+    1723 = "PPTP VPN"
+    1883 = "MQTT"
+    2049 = "NFS"
+    2375 = "Docker (Unsecured)"
+    2376 = "Docker (Secured)"
+    3306 = "MySQL"
+    3389 = "RDP"
+    3690 = "Subversion (SVN)"
+    4444 = "Metasploit"
+    4789 = "VXLAN"
+    5000 = "Docker Registry / UPnP"
+    5060 = "SIP (Unencrypted)"
+    5061 = "SIP (Encrypted)"
+    5432 = "PostgreSQL"
+    5900 = "VNC"
+    5985 = "WinRM (HTTP)"
+    5986 = "WinRM (HTTPS)"
+    6379 = "Redis"
+    6667 = "IRC"
+    8000 = "Common Web Applications"
+    8080 = "HTTP Proxy / Alternative HTTP"
+    8443 = "HTTPS Alternative"
+    9000 = "SonarQube / Alternate Web Services"
+    9090 = "Prometheus / Web Services"
+    9200 = "Elasticsearch"
+    11211 = "Memcached (Can use TCP)"
+    27017 = "MongoDB"
+    33848 = "VMware NFC (VM file transfer)"
+}
+
+function Resolve_Port ([int]$open_port) {
+    if ($TCPPorts.ContainsKey($open_port)) {
+        return " - $($TCPPorts[$open_port])"
+    }
+    return ""
+}
+
+# takes port ranges and breaks them into individual ports (I.E: 1-5 to 1,2,3,4,5)
+function Parse_Ports {
+    param (
+        [string]$portsInput
+    )
+    $ports = @()
+    $portsInput.Split(',') | ForEach-Object {
+        if ($_ -match '(\d+)-(\d+)') {
+            $ports += ($matches[1]..$matches[2])
+        } else {
+            $ports += [int]$_
+        }
+    }
+    return $ports
+}
+
 while ($true) {
     Clear-Host
     Write-Host "Running TCP_Scanner.ps1 at $(Get-Date)" -ForegroundColor Cyan
     $target = [IpAddress](Read-Host "Enter the target IP address or hostname")
     $portsInput = Read-Host "Enter the ports to scan (e.g. 80, 443-500, 8080)"
     Write-Host "========================================================================" -ForegroundColor Cyan
-
-    # takes port ranges and breaks them into individual ports (I.E: 1-5 to 1,2,3,4,5)
-    function Parse_Ports {
-        param (
-            [string]$portsInput
-        )
-        $ports = @()
-        $portsInput.Split(',') | ForEach-Object {
-            if ($_ -match '(\d+)-(\d+)') {
-                $ports += ($matches[1]..$matches[2])
-            } else {
-                $ports += [int]$_
-            }
-        }
-        return $ports
-    }
 
     # creates port array
     $ports = Parse_Ports -portsInput $portsInput
@@ -76,7 +144,7 @@ while ($true) {
             # check if connection is successful
             if ($connectors[$_].Tcp_Client.Connected -eq $true) {
                 if ($debug) { Write-Host "Receiving TCP_Client $_ - ${target}:$($connectors[$_].Port) - " -ForegroundColor Yellow -NoNewline }
-                Write-Host "Port $($connectors[$_].Port) is open" -ForegroundColor Green
+                Write-Host "Port $($connectors[$_].Port) is open$(Resolve_Port -open_port $connectors[$_].Port)" -ForegroundColor Green
                 $connectors[$_].Tcp_Client.Client.Disconnect($true)
             }
             # check if connection failed
