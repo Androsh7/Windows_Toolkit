@@ -1,6 +1,6 @@
 # Windows Toolkit - Version 0.8
 
-![image](https://github.com/user-attachments/assets/8fd1ea7b-5aa9-4813-b8a8-bf9ca7d7d019)
+![image](https://github.com/user-attachments/assets/5e25e618-4797-4d19-bb96-17dee6bb9b4f)
 
 This is a Windows Toolkit written exclusively in PowerShell version 5.1 (see note about compatibility with pwsh.exe) with no external modules.
 
