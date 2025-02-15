@@ -80,7 +80,19 @@ while ($tcp_client.Connected) {
             # send the write_string
             $write_string = $write_string + "`n"
             $out_buffer = $encoding.GetBytes($write_string)
-            $tcp_stream.Write($out_buffer, 0, $write_string.Length) 1>$null
+
+            # exception handling for closed connections
+            try {
+                $tcp_stream.Write($out_buffer, 0, $write_string.Length) 1>$null
+            }
+            catch {
+                Write-Host "Failed to write to remote endpoint: $($tcp_client.Client.RemoteEndPoint)" -ForegroundColor Red
+                if ($tcp_client.Connected -ne $true) {
+                    Write-Host "The connection was closed by the remote host" -ForegroundColor Red
+                }    
+                break
+            }
+            
 
             # write to the screen
             Write-Host "$($tcp_client.Client.LocalEndPoint)> " -ForegroundColor Cyan -NoNewline
