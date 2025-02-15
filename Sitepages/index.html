@@ -79,30 +79,35 @@
             cursor: pointer;
             border-radius: 5px;
         }
+        .icon {
+            text-align: center;
+            width: 16px;
+            height: 16px;
+        }
     </style>
 </head>
 <body>
     <h1><a href="https://github.com/Androsh7/Windows_Toolkit" style="color: black;">Windows Toolkit v0.8</a></h1>
     <div class="container">
         <div class="column">
-            <h2>Program shortcuts</h2>
+            <h2>Program Shortcuts</h2>
             <ul>
                 <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/CMD_User')">cmd.exe</button></li>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/CMD_Admin')">cmd.exe Admin</button></li>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Powershell_User')">Powershell</button></li>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Powershell_Admin')">Powershell Admin</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/CMD_Admin')">cmd.exe  <img class="icon" src="shield.png"></button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Powershell_User')">powershell.exe</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Powershell_Admin')">powershell.exe  <img class="icon" src="shield.png"></button></li>
                 <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/PWSH_User')">pwsh.exe</button></li>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/PWSH_Admin')">pwsh.exe Admin</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/PWSH_Admin')">pwsh.exe  <img class="icon" src="shield.png"></button></li>
             </ul>
         </div>
         <div class="column">
             <h2>Local Tools</h2>
             <ul>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/System_Info.ps1')">Systeminfo</button></li>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Get_Strings.ps1')">Get Strings</button></li>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/View_Login.ps1')">View Logins</button></li>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Current_Users.ps1')">Current Users</button></li>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Current_Users_Admin')">Current Users Admin</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/System_Info.ps1')"><img class="icon" src="computer-gear.png">  System Info</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Get_Strings.ps1')"><img class="icon" src="search.png">  Get Strings</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/View_Login.ps1')"><img class="icon" src="user-key.png">  View Logins</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Current_Users.ps1')"><img class="icon" src="user-search.png">  Current Users</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Current_Users_Admin')"><img class="icon" src="user-search.png">  Current Users  <img class="icon" src="shield.png"></button></li>
             </ul>
         </div>
         <div class="column">
@@ -110,7 +115,7 @@
             <ul>
                 <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Remote_Shell.ps1')">Remote Terminal</button></li>
                 <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Enter_PSSession_User')">PSSession</button></li>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Enter_PSSession_Admin')">PSSession Admin</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Enter_PSSession_Admin')">PSSession  <img class="icon" src="shield.png"></button></li>
                 <li><button class="ps1-button" onclick="fetch('/Remote_Desktop')">Remote Desktop (RDP)</button></li>
             </ul>
         </div>
@@ -140,7 +145,7 @@
         <div class="column">
             <h2>Resources</h2>
             <ul>
-                <li><a href="Powershell_Commands.html">Powershell Commands</a></li>
+                <li><a href="Powershell_Commands.html"><img class="icon" src="square-code.png">  Powershell Commands</a></li>
             </ul>
         </div>
     </div>
