@@ -4,7 +4,7 @@ $max_connections = 100 # increase to speed up scans (100 is default)
 $timeout = 1500 # milliseconds until a port is deemed to be closed (1500 is default)
 
 $show_updates = $true # prints an update every 1,000 ports
-
+$show_closed = $false # shows closed ports
 $debug = $false # prints information on individual socket connections (not recommended)
 
 $TCPPorts = @{
@@ -145,15 +145,16 @@ while ($true) {
 
     # run the scan
     $port_iter = 0
-    $quit = $false
+    $finished_connections = $false
+    $finished_checks = $false
     $stopWatch = [System.Diagnostics.Stopwatch]::StartNew()
 
-    while (-not $quit) {
+    while ($finished_connections -eq $false -or $finished_checks -eq $false) {
         # start the connections
         0..$($connectors.length - 1) | Where-Object { $connectors[$_].State -eq 0 } | ForEach-Object {
-            if ($port_iter -gt $ports.Count) {
-                $quit = $true
-                break
+            if ($port_iter -ge $ports.Count) {
+                $finished_connections = $true
+                return
             }
             $connectors[$_].Tcp_Client.ConnectAsync($target, $ports[$port_iter]) 1>$null
             $connectors[$_].Port = $ports[$port_iter]
@@ -167,7 +168,8 @@ while ($true) {
         }
 
         # check on connections
-        0..$($connectors.Length - 1) | ForEach-Object {
+        $finished_checks = $true
+        0..$($connectors.Length - 1) | Where-Object { $connectors[$_].State -eq 1 } | ForEach-Object {
             # check if connection is successful
             if ($connectors[$_].Tcp_Client.Connected -eq $true) {
                 if ($debug) { Write-Host "Receiving TCP_Client $_ - ${target}:$($connectors[$_].Port) - " -ForegroundColor Yellow -NoNewline }
@@ -177,12 +179,14 @@ while ($true) {
             # check if connection failed
             elseif ($stopWatch.Elapsed.TotalMilliseconds - $connectors[$_].Time.TotalMilliseconds -gt $timeout) {
                 if ($debug) { Write-Host "Receiving TCP_Client $_ - ${target}:$($connectors[$_].Port) - " -ForegroundColor Yellow -NoNewline }
-                if ($debug) { Write-Host "Port $($connectors[$_].Port) is closed" -ForegroundColor Red }
+                if ($show_closed) { Write-Host "Port $($connectors[$_].Port) is closed" -ForegroundColor Red }
             }
             # skip if connection is still pending
             else {
+                $finished_checks = $false
                 return
             }
+            $finished_checks = $false
 
             # reset connector
             $connectors[$_].Tcp_Client.Dispose()
@@ -191,6 +195,7 @@ while ($true) {
             $connectors[$_].Port = $null
             $connectors[$_].State = 0
         }
+
     }
     Write-Host "========================================================================" -ForegroundColor Cyan
     Write-Host "Scanned $($ports.Count) ports in $([math]::Round($stopWatch.Elapsed.TotalSeconds, 2)) seconds" -ForegroundColor Cyan
