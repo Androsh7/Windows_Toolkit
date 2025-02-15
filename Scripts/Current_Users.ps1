@@ -1,4 +1,4 @@
-$Host.UI.RawUI.WindowTitle = "View Users"
+$Host.UI.RawUI.WindowTitle = "View Current Users"
 
 # Verify user has administrator permissions (only when running in Powershell version 5.1)
 $currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()

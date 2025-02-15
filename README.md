@@ -21,6 +21,8 @@ The purpose of this toolkit is to provide a simple replication of many common ne
   - [X] Enter-PSSession (user and runas)
   - [X] pwsh.exe (user and runas)
 - Utilities
+  - [X] Current_Users.ps1 - a script that shows all active users, their sessions, and their oldest process
+  - [X] All_Users.ps1 - a script to show all user's who have established an account on the machine
   - [X] SystemInfo.ps1 - a script that runs the "systeminfo" command and then opens up a notepad with the results
   - [X] Get_Strings.ps1 - a script that parses any file for valid ASCII strings of a specified length and then returns a notepad with the results
   - [X] Get_Strings.ps1 - a script to constantly query all users and their sessions (when run as admin this can detect runas processes and windows service accounts)
@@ -33,6 +35,7 @@ The purpose of this toolkit is to provide a simple replication of many common ne
 | - | :-: | :-: | - |
 | powershell_web_server.ps1 | ✅ | ✅ | |
 | AD Tools | ⚠️ | ⚠️ | These tools are still WIP |
+| All_Users.ps1 | ✅ | ✅ | |
 | Current_Users.ps1 | ✅ | ✅ | Running as a user is only allowed with version 7.5 |
 | Get_Strings.ps1 | ✅ | ✅ | uses version check for compatibility |
 | ICMP_Scanner.ps1 | ✅  | ✅ | |
