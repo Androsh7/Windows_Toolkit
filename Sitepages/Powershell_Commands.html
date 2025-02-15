@@ -109,6 +109,14 @@ Get-CimInstance Win32_Process | Where-Object { $_.SessionId -ne 0 } | ForEach-Ob
             <pre id="get-sessions-admin">Get-Process -IncludeUserName | Sort-Object Username -Unique | Where-Object { $null -ne $_.UserName} | Select-Object SessionId, Username, ProcessName, Id | Sort-Object -Property SessionId -Descending</pre>
         </div>
     </div>
+    <div class="script-container">
+        <div class="script-title">Show all users</div>
+        <div class="script-description">Shows all users who have an account on the current machine</div>
+        <div class="script-code">
+            <button class="copy-button" onclick="copyToClipboard('get-all-users')">Copy</button>
+            <pre id="get-all-users">Get-WmiObject win32_Useraccount | Select-Object Domain, Name, Disabled, SID | Sort-Object Disabled -Descending | Format-Table -Wrap</pre>
+        </div>
+    </div>
     <script>
         function copyToClipboard(elementId) {
             var copyText = document.getElementById(elementId).innerText;
