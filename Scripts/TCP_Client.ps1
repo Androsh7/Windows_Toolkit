@@ -58,6 +58,9 @@ while ($tcp_client.Connected) {
         # write to the screen
         Write-Host "$($tcp_client.Client.RemoteEndPoint)> " -ForegroundColor Green -NoNewline
         Write-Host $read_string -NoNewline -ForegroundColor Green
+        if (-not $read_string.EndsWith("`n")) {
+            Write-Host ""
+        }
 
         # clear the read buffer
         0..${read_bytes} | ForEach-Object {
@@ -69,7 +72,7 @@ while ($tcp_client.Connected) {
         [console]::SetCursorPosition($write_string.Length, [console]::CursorTop)
         $key_read = $true
     }
-    # checks if a keyboard input has been read (NOTE: this can read pmultiple queued keypresses)
+    # checks if a keyboard input has been read (NOTE: this can read multiple queued keypresses)
     while ([Console]::KeyAvailable) {
         $key_read = $true
         $key = [console]::ReadKey()
@@ -77,7 +80,7 @@ while ($tcp_client.Connected) {
             # send the write_string
             $write_string = $write_string + "`n"
             $out_buffer = $encoding.GetBytes($write_string)
-            $out_bytes = $tcp_stream.Write($out_buffer, 0, $write_string.Length)
+            $tcp_stream.Write($out_buffer, 0, $write_string.Length) 1>$null
 
             # write to the screen
             Write-Host "$($tcp_client.Client.LocalEndPoint)> " -ForegroundColor Cyan -NoNewline
