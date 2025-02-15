@@ -40,7 +40,7 @@ The purpose of this toolkit is to provide a simple replication of many common ne
 | System_Info.ps1 | ✅ | ✅  | |
 | TCP_Client.ps1 | ✅ | ✅  | |
 | TCP_Receiver.ps1 | ✅ | ✅ | |
-| TCP_Scanner.ps1 | ✅ | ✅ | |
+| TCP_Scanner.ps1 | ❌ | ✅ | Program encounters error when run in PowerShell 5.1 |
 | UDP_Receiver.ps1 | ✅ | ✅ | |
 | UDP_Transmitter.ps1 | ✅ | ✅ | |
 | View_Login.ps1 | ✅ | ✅ | Significantly slower in version 5.1 (or earlier) |
