@@ -30,6 +30,30 @@ try {
         "base64-to-text" {
             $output = [System.Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($inputData))
         }
+        "text-to-rot13" {
+            $output = ""
+            $inputData.ToCharArray() | ForEach-Object {
+                if ($_ -ge 65 -and $_ -le 90) {
+                    $Output += [char](([int]$_ - 65 + 13) % 26 + 65)
+                } elseif ($_ -ge 97 -and $_ -le 122) {
+                    $Output += [char](([int]$_ - 97 + 13) % 26 + 97)
+                } else {
+                    $Output += $_
+                }
+            }
+        }
+        "rot13-to-text" {
+            $output = ""
+            $inputData.ToCharArray() | ForEach-Object {
+                if ($_ -ge 65 -and $_ -le 90) {
+                    $Output += [char](([int]$_ - 65 + 13) % 26 + 65)
+                } elseif ($_ -ge 97 -and $_ -le 122) {
+                    $Output += [char](([int]$_ - 97 + 13) % 26 + 97)
+                } else {
+                    $Output += $_
+                }
+            }
+        }
         "md5" {
             $md5 = [System.Security.Cryptography.MD5]::Create()
             $bytes = [System.Text.Encoding]::UTF8.GetBytes($inputData)
