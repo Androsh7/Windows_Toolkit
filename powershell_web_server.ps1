@@ -243,9 +243,8 @@ function read_form_submission ([string]$form_attributes) {
     return $out_dict
 }
 
-function respond_in_JSON ([string]$Raw_input) {
-    $jsonResult = $Raw_input | ConvertTo-Json
-    $buffer = [Text.Encoding]::UTF8.GetBytes($jsonResult)
+function respond_in_JSON ([string]$jsonResponse) {
+    $buffer = [Text.Encoding]::UTF8.GetBytes($jsonResponse)
     $response.ContentType = "application/json"
     $response.ContentLength64 = $buffer.Length
     $response.OutputStream.Write($buffer, 0, $buffer.Length)
@@ -260,7 +259,7 @@ function grab_JSON_input {
     $reader = New-Object System.IO.StreamReader($request.InputStream)
     $requestBody = $reader.ReadToEnd()
     $reader.Close()
-    return ConvertFrom-Json $requestBody
+    return $requestBody
 }
 
 while ($listener.IsListening) {
@@ -336,6 +335,13 @@ while ($listener.IsListening) {
             }
             "/Current_Users_Admin" {
                 Start_Script -script_name "Current_Users.ps1" -admin $true
+            }
+            "/Convert_Data_Submit" {
+                $query_attributes = grab_JSON_input
+                Write-Host "Query: $query_attributes" -ForegroundColor Cyan
+                $query_response = & "$PSScriptRoot\Scripts\Data_Convert.ps1" $query_attributes | ConvertTo-Json -Compress
+                Write-Host "Response: $query_response" -ForegroundColor Green
+                respond_in_JSON -jsonResponse $query_response
             }
             # This is broken right now fix later
             "/domain_user_query_submit" {

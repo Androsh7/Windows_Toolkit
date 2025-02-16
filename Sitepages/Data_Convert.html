@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        .home-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+        }
+        .power-button {
+            position: absolute;
+            top: 80px;
+            right: 10px;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+        }
+    </style>
+    <title>Convert Data</title>
+</head>
+<body>
+    <div>
+        <h2>Convert Data</h2>
+        <label for="conversion-type">Select Conversion Type:</label>
+        <select id="conversion-type">
+            <option value="text-to-hex">Text to Hex</option>
+            <option value="hex-to-text">Hex to Text</option>
+            <option value="text-to-binary">Text to Binary</option>
+            <option value="binary-to-text">Binary to Text</option>
+            <option value="text-to-base64">Text to Base64</option>
+            <option value="base64-to-text">Base64 to Text</option>
+            <option value="text-to-rot13">Text to Rot13</option>
+            <option value="rot13-to-text">Rot13 to Text</option>
+            <option value="md5">MD5</option>
+            <option value="sha1">SHA-1</option>
+            <option value="sha256">SHA-256</option>
+            <option value="sha384">SHA-384</option>
+            <option value="sha512">SHA-512</option>
+        </select>
+        <label for="input"><br><br>Enter Input Data:</label>
+        <button onclick="convertData()">Convert</button>
+        <br>
+        <textarea id="input" placeholder="Enter input data" style="width: 1000px; height: 200px;"></textarea>
+        
+        
+        
+        <label for="output"><br><br>Output:<br></label>
+        <textarea id="output" readonly style="width: 1000px; height: 200px;"></textarea>
+    </div>
+    <script>
+        function convertData() {
+            const type = document.getElementById("conversion-type").value;
+            const input = document.getElementById("input").value;
+            
+            fetch("/Convert_Data_Submit", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ conversion_type: type, input_data: input })
+            })
+            .then(response => response.json())
+            .then(data => document.getElementById("output").value = data.output)
+            .catch(error => document.getElementById("output").value = "Error: " + error);
+        }
+    </script>
+    <a href="..\index.html"> <img src="..\home.png" alt="Home Button" class="home-button"> </a>
+    <img src="..\power.png" alt="Power Button" class="power-button" 
+         onclick="fetch('/shutdown')
+                    .then(response => { 
+                        if (response.ok) { 
+                            alert('Shutdown initiated');
+                            window.location.reload();
+                        } else { 
+                            alert('Failed to initiate shutdown'); 
+                        } 
+                    })
+                    .catch(error => { 
+                        alert('Error: ' + error); 
+                    });">
+</body>
+</html>
