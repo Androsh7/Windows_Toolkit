@@ -1,11 +1,10 @@
 Add-Type -AssemblyName System.Windows.Forms
 
-$Host.UI.RawUI.WindowTitle = "GetStrings"
+$Host.UI.RawUI.WindowTitle = "Get Strings"
 
-Write-Host "Running GetStrings.ps1 at $(Get-Date)"-ForegroundColor Cyan
+Write-Host "Running Get_Strings.ps1 at $(Get-Date)"-ForegroundColor Cyan
 
 $out_file = "${env:TEMP}\Strings.txt"
-$update_frequency = 3 #changes the seconds elapsed between progress updates
 
 # opens a prompt to select a file
 Write-Host "Please select a file"
@@ -36,17 +35,6 @@ if (Test-Path $selectedFile) {
     Exit
 }
 
-# grab byte stream
-Write-Host "Grabbing Byte Stream for $selectedFile"
-
-# backwards compatibility for powershell.exe
-if ($host.Version.Major -lt 7) {
-    $byte_stream = Get-Content -Raw $selectedFile -Encoding Byte 
-} else {
-    $byte_stream = Get-Content -Raw $selectedFile -AsByteStream
-}
-
-
 # add output file headers
 "GetStrings.ps1 running on $(Get-Date)" > $out_file
 "Parsing File: `"$selectedFile`"" >> $out_file
@@ -58,24 +46,6 @@ if ($host.Version.Major -lt 7) {
 $total_bytes = $byte_stream.Count
 Write-Host "Parsing Byte Stream (Total of $total_bytes Bytes)" -ForegroundColor Cyan
 
-# create a stopwatch to show the progress of the operation
-$stopWatch = New-Object -TypeName System.Diagnostics.Stopwatch
-$stopWatch.Start()
-$last_update = 0
-
-$out_string = ""
-for ($i = 0; $i -lt $byte_stream.Count; $i++) {
-    if ($byte_stream[$i] -gt 31 -and $byte_stream[$i] -lt 128) {
-        $out_string += $([char]($byte_stream[$i]))
-    } elseif ($out_string.length -ge $min_string_len) {
-        $out_string >> $out_file
-        $out_string = ""
-    }
-    if ($stopWatch.Elapsed.Seconds % $update_frequency -eq 0 -and $stopWatch.Elapsed.Seconds -ne $last_update) {
-        Write-Host "$([int](($i / $total_bytes) * 100))% complete ($i of $total_bytes bytes)" -ForegroundColor Yellow
-        $last_update = $stopWatch.Elapsed.Seconds
-    }
-}
-$stopWatch.Stop()
+Get-Content -Path "$selectedFile" | Select-String -Pattern "[\\x20-\\x7E]{${min_string_len},}" -List | ForEach-Object { $_.Matches.Value } | Tee-Object -FilePath $out_file -Append
 
 Start-Process -FilePath "Notepad.exe" -ArgumentList $out_file
