@@ -321,6 +321,14 @@ while ($listener.IsListening) {
                 Start_Program "pwsh.exe" -noexit $true -admin $true
                 Respond_OK -close $true
             }
+            "/Powershell_ISE_User" {
+                Start-Process -FilePath "powershell_ISE.exe"
+                Respond_OK -close $true
+            }
+            "/Powershell_ISE_Admin" {
+                Start-Process -FilePath "powershell_ISE.exe" -Verb runas
+                Respond_OK -close $true
+            }
             "/Enter_PSSession_Admin" {
                 Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -NoExit -executionpolicy Bypass -Command `$CPU = Read-Host -Prompt `"ComputerName`"; Enter-PSSession -ComputerName `$CPU" -Verb runas
                 Respond_OK -close $true
@@ -331,6 +339,38 @@ while ($listener.IsListening) {
             }
             "/Remote_Desktop" {
                 Start-Process -FilePath "mstsc.exe"
+                Respond_OK -close $true
+            }
+            "/Control_Panel" {
+                Start-Process -FilePath "control.exe"
+                Respond_OK -close $true
+            }
+            "/Device_Manager_User" {
+                Start-Process -FilePath "devmgmt.msc"
+                Respond_OK -close $true
+            }
+            "/Device_Manager_Admin" {
+                Start-Process -FilePath "devmgmt.msc" -Verb RunAs
+                Respond_OK -close $true
+            }
+            "/Registry_Edit_User" {
+                Start-Process -FilePath "regedit.exe"
+                Respond_OK -close $true
+            }
+            "/Registry_Edit_Admin" {
+                Start-Process -FilePath "regedit.exe" -Verb RunAs
+                Respond_OK -close $true
+            }
+            "/Event_Viewer_User" {
+                Start-Process -FilePath "eventvwr.msc"
+                Respond_OK -close $true
+            }
+            "/Event_Viewer_Admin" {
+                Start-Process -FilePath "eventvwr.msc" -Verb RunAs
+                Respond_OK -close $true
+            }
+            "/Windows_Firewall_Admin" {
+                Start-Process -FilePath "wf.msc" -Verb RunAs
                 Respond_OK -close $true
             }
             "/Current_Users_Admin" {

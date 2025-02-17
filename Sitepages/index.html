@@ -90,11 +90,23 @@
     <h1><a href="https://github.com/Androsh7/Windows_Toolkit" style="color: black;">Windows Toolkit v0.8</a></h1>
     <div class="container">
         <div class="column">
-            <h2>Program Shortcuts</h2>
+            <h2>Scripting Shortcuts</h2>
             <ul>
                 <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/CMD_User')" title="Open Command Prompt as User">cmd.exe</button><button class="ps1-button" onclick="fetch('/CMD_Admin')" title="Open Command Prompt as Admin"><img class="icon" src="shield.png"></li>
                 <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Powershell_User')" title="Open PowerShell as User">powershell.exe</button><button class="ps1-button" onclick="fetch('/Powershell_Admin')" title="Open PowerShell as Admin"><img class="icon" src="shield.png"></li>
                 <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/PWSH_User')" title="Open PowerShell Core as User">pwsh.exe</button><button class="ps1-button" onclick="fetch('/PWSH_Admin')" title="Open PowerShell Core as Admin"><img class="icon" src="shield.png"></button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Powershell_ISE_User')" title="Open PowerShell ISE as User">powershell_ISE.exe</button><button class="ps1-button" onclick="fetch('/Powershell_ISE_Admin')" title="Open PowerShell ISE as Admin"><img class="icon" src="shield.png"></button></li>
+            </ul>
+        </div>
+        <div class="column">
+            <h2>Program Shortcuts</h2>
+            <ul>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Control_Panel')" title="Open Control Panel (control.exe)">Control Panel</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Device_Manager_User')" title="Open Device Manager (devmgmt.msc) as User">Device Manager</button><button class="ps1-button" onclick="fetch('/Device_Manager_Admin')" title="Open Device Manager (devmgmt.msc) as Admin"><img class="icon" src="shield.png"></button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Registry_Edit_User')" title="Open Registry Edit (regedit.exe) as User">Registry Edit</button><button class="ps1-button" onclick="fetch('/Registry_Edit_Admin')" title="Open Registry Edit (regedit.exe) as Admin"><img class="icon" src="shield.png"></button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Event_Viewer_User')" title="Open Event Viewer (eventvwr.msc) as User">Event Viewer</button><button class="ps1-button" onclick="fetch('/Event_Viewer_Admin')" title="Open Event Viewer (eventvwr.msc) as Admin"><img class="icon" src="shield.png"></button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Windows_Firewall_Admin')" title="Open Windows Firewall (wf.msc)">Windows Firewall  <img class="icon" src="shield.png"></button></li>
+                
             </ul>
         </div>
         <div class="column">
@@ -112,7 +124,7 @@
             <ul>
                 <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Remote_Shell.ps1')" title="Open Remote Terminal">Remote Terminal</button></li>
                 <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Enter_PSSession_User')" title="Enter PSSession as User">PSSession</button><button class="ps1-button" onclick="fetch('/Enter_PSSession_Admin')" title="Enter PSSession as Admin"><img class="icon" src="shield.png"></li>
-                <li><button class="ps1-button" onclick="fetch('/Remote_Desktop')" title="Open Remote Desktop (mstsc.exe)">Remote Desktop (RDP)</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Remote_Desktop')" title="Open Remote Desktop (mstsc.exe)">Remote Desktop (RDP)</button></li>
             </ul>
         </div>
         <div class="column">
