@@ -36,7 +36,8 @@ The purpose of this toolkit is to provide a simple replication of many common ne
 | AD Tools | ⚠️ | ⚠️ | These tools are still WIP |
 | All_Users.ps1 | ✅ | ✅ | |
 | Current_Users.ps1 | ✅ | ✅ | Running as a user is only allowed with version 7.5 |
-| Get_Strings.ps1 | ✅ | ✅ | uses version check for compatibility |
+| Data_Convert.ps1 | ✅ | ✅ | |
+| Get_Strings.ps1 | ✅ | ✅ | |
 | ICMP_Scanner.ps1 | ✅  | ✅ | |
 | Remote_Shell.ps1 | ✅  | ✅ | |
 | System_Info.ps1 | ✅ | ✅  | |
@@ -46,6 +47,7 @@ The purpose of this toolkit is to provide a simple replication of many common ne
 | UDP_Receiver.ps1 | ✅ | ✅ | |
 | UDP_Transmitter.ps1 | ✅ | ✅ | |
 | View_Login.ps1 | ✅ | ✅ | Significantly slower in version 5.1 (or earlier) |
+
 # Escaping Email and Web Filters
 
 Generally email filters will restrict sending .ps1 files, furthermore certain web filters will prevent downloading .ps1 files.
@@ -60,4 +62,19 @@ Then to remove the .txt extension run:
 
 ```
 Get-ChildItem -Recurse | Where-Object { $_.FullName -match "\.ps1.txt$" } | ForEach-Object { Rename-Item -Path $_.FullName -NewName $_.Name.Replace(".ps1.txt",".ps1") }
+```
+
+# Setup and Install
+The setup of this tool is very straight forward and can be broken up into three parts:
+- Step 1: Download the latest release (.zip)
+- Step 2: See "Escaping Email and Web Filters" for removing the ".txt" ending on the scripts
+- Step 3: Starting the program may require you to bypass execution policy (this disables all non-signed scripts by default) to ignore this use the following command:
+```
+Powershell.exe -ExecutionPolicy Bypass .\powershell_web_server.ps1
+```
+- Step 4 (optional): create an easy to use shortcut. If you would like to easily start the program you can create a shortcut with the following "Target":
+```
+conhost.exe powershell.exe -ExecutionPolicy Bypass C:\Path\to\the\script\powershell_web_server.ps1
+or
+conhost.exe pwsh.exe -ExecutionPolicy Bypass C:\Path\to\the\script\powershell_web_server.ps1
 ```
