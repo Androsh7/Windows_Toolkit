@@ -12,8 +12,7 @@ The purpose of this toolkit is to provide a simple replication of many common ne
 - UDP Transmitter/Receiver - Similar to the TCP Transmitter/Receiver this currently only allows for one-way communication
   - [ ] WIP - allow for two-way communciation
 - TCP Scanner - TCP full-connect scanner that uses multiple tcp sockets attempting asynchronous connections
-- ICMP Scanner - ICMP ping sweep scanner that pings each specified host or a range of hosts one-by-one
-  - [ ] WIP - optimize with PS jobs to allow multiple simultaneous scans 
+- ICMP Scanner - ICMP ping sweep scanner that pings multiple hosts simultaneously
 - Basic Shortcuts - The program currently has shortcuts for the following programs:
   - [X] mstsc.exe (Default RDP connector on windows)
   - [X] cmd.exe (user and runas)
