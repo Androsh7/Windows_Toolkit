@@ -9,11 +9,11 @@ $debug = $false # prints debug information
 function Get_Addresses_Between ([byte[]]$StartBytes, [byte[]]$EndBytes) {
     $address_array = @()
 
-    $StartInt = [int32]"0x$(([System.BitConverter]::ToString($StartBytes).Replace('-','')))"
-    $EndInt = [int32]"0x$(([System.BitConverter]::ToString($EndBytes).Replace('-','')))"
+    $StartInt = [int32]"0x$([System.BitConverter]::ToString($StartBytes).Replace('-',''))"
+    $EndInt = [int32]"0x$([System.BitConverter]::ToString($EndBytes).Replace('-',''))"
 
     ${StartInt}..$([math]::max(${EndInt},${StartInt})) | ForEach-Object {
-        $HexString = [convert]::ToString($_, 16)
+        $HexString = [convert]::ToString($_, 16).PadLeft(8, "0")
         $oct1 = [convert]::FromHexString($HexString.Substring(0,2))
         $oct2 = [convert]::FromHexString($HexString.Substring(2,2))
         $oct3 = [convert]::FromHexString($HexString.Substring(4,2))
@@ -40,27 +40,33 @@ function Parse_Machines ($user_input) {
 
         } elseif ($_ -match '^(\d+\.){3}\d+/\d{1,2}$') {
             $split_IP = $_ -split "/"
-            $startIP = [ipaddress]$split_ip[0]
-            $startBytes = $startIP.GetAddressBytes()
-            $startBinary = ""
+            $currentIP = [ipaddress]$split_ip[0]
+            $currentBytes = $currentIP.GetAddressBytes()
+
+            $currentBinary = ""
             0..3 | ForEach-Object {
-                $startBinary += [convert]::ToString($startBytes[$_], 2).PadLeft(8, "0")
+                $currentBinary += [convert]::ToString($currentBytes[$_], 2).PadLeft(8, "0")
             }
             
             $subnetMask = [int32]$split_IP[1]
             $subnetBinary = "$("1" * $subnetMask)$("0" * (32 - $subnetMask))"
-
-            $endBinary = ""
+            
+            $startBinary = ""
+            $startBinary = ""
             0..31 | ForEach-Object {
                 if ($subnetBinary[$_] -eq "1") {
-                    $endBinary += $startBinary[$_]
+                    $endBinary += $currentBinary[$_]
+                    $startBinary += $currentBinary[$_]
                 } else {
                     $endBinary += "1"
+                    $startBinary += "0"
                 }
             }
 
             $endBytes = New-Object byte[] 4
+            $startBytes = New-Object byte[] 4
             0..3 | ForEach-Object {
+                $startBytes[$_] = [convert]::ToInt32(($startBinary.Substring($_ * 8, 8)), 2)
                 $endBytes[$_] = [convert]::ToInt32(($endBinary.Substring($_ * 8, 8)), 2)
             }
 
@@ -104,7 +110,8 @@ While ($true) {
     $finished_connections = $false
     $finished_checks = $false
     $stopWatch = [System.Diagnostics.Stopwatch]::StartNew()
-
+    
+    $last_update = $stopWatch.Elapsed.TotalSeconds
     while ($finished_connections -eq $false -or $finished_checks -eq $false) {
         # start the connections
         0..$($connectors.length - 1) | Where-Object { $connectors[$_].State -eq 0 } | ForEach-Object {
@@ -163,7 +170,6 @@ While ($true) {
             $connectors[$_].Host = $null
             $connectors[$_].State = 0
         }
-
     }
     
     # destroy connector objects
@@ -174,7 +180,7 @@ While ($true) {
     $connectors.Clear()
 
     Write-Host "========================================================================" -ForegroundColor Cyan
-    Write-Host "Scanned $($hosts.Count) ports in $([math]::Round($stopWatch.Elapsed.TotalSeconds, 2)) seconds" -ForegroundColor Cyan
+    Write-Host "Scanned $($machines.Count) hosts in $([math]::Round($stopWatch.Elapsed.TotalSeconds, 2)) seconds" -ForegroundColor Cyan
 
     $userinput = Read-Host "Press Enter to continue or Q to quit"
     if ($userinput -match "Q") { exit }
