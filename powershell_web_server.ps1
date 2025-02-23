@@ -37,7 +37,7 @@ try {
 # Checks to see if pwsh.exe is installed
 $default_powershell = $null
 try {
-    Start-Process pwsh.exe -ArgumentList "Exit"
+    Start-Process pwsh.exe -ArgumentList "Exit" -WindowStyle Hidden
     Write-Host "$(TimeStamp): pwsh.exe is installed, this will be used as the default program to run powershell scripts" -ForegroundColor Yellow
     $default_powershell = "pwsh.exe"
 }
@@ -185,18 +185,31 @@ function Start_Script ([string]$script_name, [bool]$admin) {
     }
 }
 
+$approved_programs = @(
+    "cmd.exe", 
+    "powershell.exe", 
+    "pwsh.exe", 
+    "powershell_ISE.exe", 
+    "mstsc.exe", 
+    "control.exe", 
+    "devmgmt.msc", 
+    "regedit.exe",
+    "eventvwr.msc", 
+    "wf.msc"
+)
+
 function Start_Program([string]$program_name, [bool]$noexit, [bool]$admin) {
     if ($null -eq $program_name) {
         "$(TimeStamp): No program name provided" | Tee-Object -FilePath $logfile -Append | Write-Host -ForegroundColor Red
         return
     }
-    $argument_list = "${program_name} -executionpolicy bypass"
+    $argument_list = "${program_name}"
     if ($noexit) { $argument_list += " -NoExit"}
     try {
         if ($admin) {
-            Start-Process -FilePath "conhost.exe" -ArgumentList $argument_list -Verb runas
+            Start-Process conhost.exe -ArgumentList "cmd.exe /c `"start /b ${program_name}`"" -WindowStyle Hidden -Verb runas
         } else {
-            Start-Process -FilePath "conhost.exe" -ArgumentList $argument_list
+            Start-Process conhost.exe -ArgumentList "cmd.exe /c `"start /b ${program_name}`"" -WindowStyle Hidden
         }
         $print = "Started process ${program_name} as"
         if ($admin) { "$(TimeStamp): $print administrator" | Tee-Object -FilePath $logfile -Append | Write-Host }
@@ -274,21 +287,38 @@ while ($listener.IsListening) {
     # Default actions
     if     ($request.RawUrl -eq "favicon.ico") { Serve_File "Files:\\favicon.ico" "image/x-icon" }
     elseif ($request.RawUrl -eq "/") { Serve_HTML "SitePages:\\index.html" }
+    elseif ($request.RawUrl -match "\.(exe|msc)$") {
+        $split_request = $request.RawUrl.Split("/")
+        $program_name = $split_request[-1]
+        $permissions = $split_request[-2]
+        $approved_programs | ForEach-Object {
+            if ($program_name -eq $_) {
+                Start_Program -program_name $_ -noexit $false -admin ($permissions -eq "Admin")
+                Respond_OK -close $true
+                Continue
+            }
+        }
+        404_Method_Not_Allowed
+    }
+    elseif ($request.RawUrl -match "\.ps1$") {
+        $split_request = $request.RawUrl.Split("/")
+        $script_name = $split_request[-1]
+        $permissions = $split_request[-2]
+        $script_list | ForEach-Object {
+            if ($script_name -eq $_) {
+                Start_Script -script_name $_ -admin ($permissions -eq "Admin")
+                Respond_OK -close $true
+                Continue
+            }
+        }
+        404_Not_Found
+    }
     elseif ($request.RawUrl -match "\.\w+$") {
         $extension = $request.RawUrl.Split(".")[-1]
         switch ($extension) {
             "html" { Serve_HTML "SitePages:\$($request.RawUrl)"}
             "ico" { Serve_File "Files:\$($request.RawUrl)" "image/x-icon" }
             "png" { Serve_File "Files:\$($request.RawUrl)" "image/png" }
-            "ps1" {
-                $script_list | ForEach-Object {
-                    if ($request.RawUrl -eq "/$_") {
-                        Start_Script $_
-                        continue
-                    }
-                }
-                404_Not_Found
-            }
             Default { 404_Not_Found }
         }
     }
@@ -297,38 +327,6 @@ while ($listener.IsListening) {
             "/Shutdown" {
                 Shutdown_Actions
             }
-            "/CMD_User" {
-                Start_Program "cmd.exe" -noexit $true -admin $false
-                Respond_OK -close $true
-            }
-            "/CMD_Admin" {
-                Start_Program "cmd.exe" -noexit $true -admin $true
-                Respond_OK -close $true
-            }
-            "/Powershell_User" {
-                Start_Program "powershell.exe" -noexit $true -admin $false
-                Respond_OK -close $true
-            }
-            "/Powershell_Admin" {
-                Start_Program "powershell.exe" -noexit $true -admin $true
-                Respond_OK -close $true
-            }
-            "/PWSH_User" {
-                Start_Program "pwsh.exe" -noexit $true -admin $false
-                Respond_OK -close $true
-            }
-            "/PWSH_Admin" {
-                Start_Program "pwsh.exe" -noexit $true -admin $true
-                Respond_OK -close $true
-            }
-            "/Powershell_ISE_User" {
-                Start-Process -FilePath "powershell_ISE.exe"
-                Respond_OK -close $true
-            }
-            "/Powershell_ISE_Admin" {
-                Start-Process -FilePath "powershell_ISE.exe" -Verb runas
-                Respond_OK -close $true
-            }
             "/Enter_PSSession_Admin" {
                 Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -NoExit -executionpolicy Bypass -Command `$CPU = Read-Host -Prompt `"ComputerName`"; Enter-PSSession -ComputerName `$CPU" -Verb runas
                 Respond_OK -close $true
@@ -336,45 +334,6 @@ while ($listener.IsListening) {
             "/Enter_PSSession_User" {
                 Start-Process -FilePath "conhost.exe" -ArgumentList "powershell.exe -NoExit -executionpolicy Bypass -Command `$CPU = Read-Host -Prompt `"ComputerName`"; Enter-PSSession -ComputerName `$CPU"
                 Respond_OK -close $true
-            }
-            "/Remote_Desktop" {
-                Start-Process -FilePath "mstsc.exe"
-                Respond_OK -close $true
-            }
-            "/Control_Panel" {
-                Start-Process -FilePath "control.exe"
-                Respond_OK -close $true
-            }
-            "/Device_Manager_User" {
-                Start-Process -FilePath "devmgmt.msc"
-                Respond_OK -close $true
-            }
-            "/Device_Manager_Admin" {
-                Start-Process -FilePath "devmgmt.msc" -Verb RunAs
-                Respond_OK -close $true
-            }
-            "/Registry_Edit_User" {
-                Start-Process -FilePath "regedit.exe"
-                Respond_OK -close $true
-            }
-            "/Registry_Edit_Admin" {
-                Start-Process -FilePath "regedit.exe" -Verb RunAs
-                Respond_OK -close $true
-            }
-            "/Event_Viewer_User" {
-                Start-Process -FilePath "eventvwr.msc"
-                Respond_OK -close $true
-            }
-            "/Event_Viewer_Admin" {
-                Start-Process -FilePath "eventvwr.msc" -Verb RunAs
-                Respond_OK -close $true
-            }
-            "/Windows_Firewall_Admin" {
-                Start-Process -FilePath "wf.msc" -Verb RunAs
-                Respond_OK -close $true
-            }
-            "/Current_Users_Admin" {
-                Start_Script -script_name "Current_Users.ps1" -admin $true
             }
             "/Convert_Data_Submit" {
                 $query_attributes = grab_JSON_input

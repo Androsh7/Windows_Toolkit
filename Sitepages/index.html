@@ -92,39 +92,39 @@
         <div class="column">
             <h2>Scripting Shortcuts</h2>
             <ul>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/CMD_User')" title="Open Command Prompt as User">cmd.exe</button><button class="ps1-button" onclick="fetch('/CMD_Admin')" title="Open Command Prompt as Admin"><img class="icon" src="shield.png"></li>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Powershell_User')" title="Open PowerShell as User">powershell.exe</button><button class="ps1-button" onclick="fetch('/Powershell_Admin')" title="Open PowerShell as Admin"><img class="icon" src="shield.png"></li>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/PWSH_User')" title="Open PowerShell Core as User">pwsh.exe</button><button class="ps1-button" onclick="fetch('/PWSH_Admin')" title="Open PowerShell Core as Admin"><img class="icon" src="shield.png"></button></li>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Powershell_ISE_User')" title="Open PowerShell ISE as User">powershell_ISE.exe</button><button class="ps1-button" onclick="fetch('/Powershell_ISE_Admin')" title="Open PowerShell ISE as Admin"><img class="icon" src="shield.png"></button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/User/cmd.exe')" title="Open Command Prompt as User">cmd.exe</button><button class="ps1-button" onclick="fetch('/Admin/cmd.exe')" title="Open Command Prompt as Admin"><img class="icon" src="shield.png"></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/User/PowerShell.exe')" title="Open PowerShell as User">powershell.exe</button><button class="ps1-button" onclick="fetch('/Admin/PowerShell.exe')" title="Open PowerShell as Admin"><img class="icon" src="shield.png"></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/User/pwsh.exe')" title="Open PowerShell Core as User">pwsh.exe</button><button class="ps1-button" onclick="fetch('/Admin/pwsh.exe')" title="Open PowerShell Core as Admin"><img class="icon" src="shield.png"></button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/User/PowerShell_ISE.exe')" title="Open PowerShell ISE as User">powershell_ISE.exe</button><button class="ps1-button" onclick="fetch('/Admin/PowerShell_ISE.exe')" title="Open PowerShell ISE as Admin"><img class="icon" src="shield.png"></button></li>
             </ul>
         </div>
         <div class="column">
             <h2>Program Shortcuts</h2>
             <ul>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Control_Panel')" title="Open Control Panel (control.exe)">Control Panel</button></li>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Device_Manager_User')" title="Open Device Manager (devmgmt.msc) as User">Device Manager</button><button class="ps1-button" onclick="fetch('/Device_Manager_Admin')" title="Open Device Manager (devmgmt.msc) as Admin"><img class="icon" src="shield.png"></button></li>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Registry_Edit_User')" title="Open Registry Edit (regedit.exe) as User">Registry Edit</button><button class="ps1-button" onclick="fetch('/Registry_Edit_Admin')" title="Open Registry Edit (regedit.exe) as Admin"><img class="icon" src="shield.png"></button></li>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Event_Viewer_User')" title="Open Event Viewer (eventvwr.msc) as User">Event Viewer</button><button class="ps1-button" onclick="fetch('/Event_Viewer_Admin')" title="Open Event Viewer (eventvwr.msc) as Admin"><img class="icon" src="shield.png"></button></li>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Windows_Firewall_Admin')" title="Open Windows Firewall (wf.msc)">Windows Firewall  <img class="icon" src="shield.png"></button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/User/control.exe')" title="Open Control Panel (control.exe)">Control Panel</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/User/devmgmt.msc')" title="Open Device Manager (devmgmt.msc) as User">Device Manager</button><button class="ps1-button" onclick="fetch('/Admin/devmgmt.msc')" title="Open Device Manager (devmgmt.msc) as Admin"><img class="icon" src="shield.png"></button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/User/regedit.exe')" title="Open Registry Edit (regedit.exe) as User">Registry Edit</button><button class="ps1-button" onclick="fetch('/Admin/regedit.exe')" title="Open Registry Edit (regedit.exe) as Admin"><img class="icon" src="shield.png"></button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/User/eventvwr.msc')" title="Open Event Viewer (eventvwr.msc) as User">Event Viewer</button><button class="ps1-button" onclick="fetch('/Admin/eventvwr.msc')" title="Open Event Viewer (eventvwr.msc) as Admin"><img class="icon" src="shield.png"></button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Admin/wf.msc')" title="Open Windows Firewall (wf.msc)">Windows Firewall  <img class="icon" src="shield.png"></button></li>
                 
             </ul>
         </div>
         <div class="column">
             <h2>Local Tools</h2>
             <ul>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/System_Info.ps1')" title="Get System Information"><img class="icon" src="computer-gear.png">  System Info</button></li>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Get_Strings.ps1')" title="Get Strings from a file"><img class="icon" src="search.png">  Get Strings</button></li>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/View_Login.ps1')" title="View Login Information"><img class="icon" src="user-key.png">  View Logins</button></li>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Current_Users.ps1')" title="View Current Users"><img class="icon" src="user-search.png">  Current Users</button><button class="ps1-button" onclick="fetch('/Current_Users_Admin')" title="View Current Users as Admin"><img class="icon" src="shield.png"></li>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/All_Users.ps1')" title="View All Users"><img class="icon" src="users.png">  All Users</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/User/System_Info.ps1')" title="Get System Information"><img class="icon" src="computer-gear.png">  System Info</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/User/Get_Strings.ps1')" title="Get Strings from a file"><img class="icon" src="search.png">  Get Strings</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/User/View_Login.ps1')" title="View Login Information"><img class="icon" src="user-key.png">  View Logins</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/User/Current_Users.ps1')" title="View Current Users"><img class="icon" src="user-search.png">  Current Users</button><button class="ps1-button" onclick="fetch('/Admin/Current_Users.ps1')" title="View Current Users as Admin"><img class="icon" src="shield.png"></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/User/All_Users.ps1')" title="View All Users"><img class="icon" src="users.png">  All Users</button></li>
             </ul>
         </div>
         <div class="column">
             <h2>Remote Tools</h2>
             <ul>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Remote_Shell.ps1')" title="Open Remote Terminal">Remote Terminal</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/User/Remote_Shell.ps1')" title="Open Remote Terminal">Remote Terminal</button></li>
                 <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Enter_PSSession_User')" title="Enter PSSession as User">PSSession</button><button class="ps1-button" onclick="fetch('/Enter_PSSession_Admin')" title="Enter PSSession as Admin"><img class="icon" src="shield.png"></li>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/Remote_Desktop')" title="Open Remote Desktop (mstsc.exe)">Remote Desktop (RDP)</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/User/mstsc.exe')" title="Open Remote Desktop (mstsc.exe)">Remote Desktop (RDP)</button></li>
             </ul>
         </div>
         <div class="column">
@@ -137,17 +137,17 @@
         <div class="column">
             <h2>Transmitters/Receivers</h2>
             <ul>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/TCP_Client.ps1')" title="Open TCP Client">TCP Client</button></li>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/TCP_Listener.ps1')" title="Open TCP Listener">TCP Listener</button></li>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/UDP_Transmitter.ps1')" title="Send UDP Data">UDP Send</button></li>
-                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/UDP_Receiver.ps1')" title="Receive UDP Data">UDP Receive</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/User/TCP_Client.ps1')" title="Open TCP Client">TCP Client</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/User/TCP_Listener.ps1')" title="Open TCP Listener">TCP Listener</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/User/UDP_Transmitter.ps1')" title="Send UDP Data">UDP Send</button></li>
+                <li style="display: inline-block;"><button class="ps1-button" onclick="fetch('/User/UDP_Receiver.ps1')" title="Receive UDP Data">UDP Receive</button></li>
             </ul>
         </div>
         <div class="column">
             <h2>Network Scanners</h2>
             <ul>
-                <li><button class="ps1-button" onclick="fetch('/TCP_Scanner.ps1')" title="Open TCP Scanner">TCP Scanner</button></li>
-                <li><button class="ps1-button" onclick="fetch('/ICMP_Scanner.ps1')" title="Open ICMP Scanner">ICMP Scanner</button></li>
+                <li><button class="ps1-button" onclick="fetch('/User/TCP_Scanner.ps1')" title="Open TCP Scanner">TCP Scanner</button></li>
+                <li><button class="ps1-button" onclick="fetch('/User/ICMP_Scanner.ps1')" title="Open ICMP Scanner">ICMP Scanner</button></li>
             </ul>
         </div>
         <div class="column">
