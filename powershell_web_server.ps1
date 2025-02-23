@@ -38,11 +38,11 @@ try {
 $default_powershell = $null
 try {
     Start-Process pwsh.exe -ArgumentList "Exit" -WindowStyle Hidden
-    Write-Host "$(TimeStamp): pwsh.exe is installed, this will be used as the default program to run powershell scripts" -ForegroundColor Yellow
+    "$(TimeStamp): pwsh.exe is installed, this will be used as the default program to run powershell scripts" | Tee-Object -FilePath $logfile -Append | Write-Host -ForegroundColor Yellow
     $default_powershell = "pwsh.exe"
 }
 catch {
-    Write-Host "$(TimeStamp): pwsh.exe is not installed, defaulting to powershell.exe (note this will impact performance)" -ForegroundColor Yellow
+    "$(TimeStamp): pwsh.exe is not installed, defaulting to powershell.exe (note this will impact performance)" | Tee-Object -FilePath $logfile -Append | Write-Host -ForegroundColor Yellow
     $default_powershell = "powershell.exe"
 }
 
