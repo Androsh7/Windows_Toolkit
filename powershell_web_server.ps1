@@ -186,9 +186,6 @@ function Start_Script ([string]$script_name, [bool]$admin) {
 }
 
 $approved_programs = @(
-    "cmd.exe", 
-    "powershell.exe", 
-    "pwsh.exe", 
     "powershell_ISE.exe", 
     "mstsc.exe", 
     "control.exe", 
@@ -287,6 +284,16 @@ while ($listener.IsListening) {
     # Default actions
     if     ($request.RawUrl -eq "favicon.ico") { Serve_File "Files:\\favicon.ico" "image/x-icon" }
     elseif ($request.RawUrl -eq "/") { Serve_HTML "SitePages:\\index.html" }
+    elseif ($request.RawUrl -match "(cmd|pwsh|powershell)\.exe$") {
+        $split_request = $request.RawUrl.Split("/")
+        $program_name = $split_request[-1]
+        $permissions = $split_request[-2]
+        if ($permissions -eq "Admin") {
+            Start-Process -FilePath "conhost.exe" -ArgumentList "$program_name" -Verb runas
+        } else {
+            Start-Process -FilePath "conhost.exe" -ArgumentList "$program_name"
+        }
+    }
     elseif ($request.RawUrl -match "\.(exe|msc)$") {
         $split_request = $request.RawUrl.Split("/")
         $program_name = $split_request[-1]
@@ -298,7 +305,7 @@ while ($listener.IsListening) {
                 Continue
             }
         }
-        404_Method_Not_Allowed
+        404_Not_Found
     }
     elseif ($request.RawUrl -match "\.ps1$") {
         $split_request = $request.RawUrl.Split("/")
