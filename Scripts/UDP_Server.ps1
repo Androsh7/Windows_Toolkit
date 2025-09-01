@@ -36,11 +36,8 @@ catch {
     Exit
 }
 
-# blocks the script until a connection is received
-$udp_client.receive()
-
 Clear-Host
-$Host.UI.RawUI.WindowTitle = "UDP SERVER CONNECTION $($udp_client.Client.LocalEndPoint) --> $($udp_client.Client.RemoteEndPoint)"
+$Host.UI.RawUI.WindowTitle = "UDP SERVER ON $($udp_client.Client.LocalEndPoint)"
 Write-Host "---------------------------------------------------------------------------------------" -ForegroundColor Yellow
 Write-Host "UDP SERVER ON $($udp_client.Client.LocalEndPoint)" -ForegroundColor Yellow
 Write-Host "---------------------------------------------------------------------------------------" -ForegroundColor Yellow
@@ -86,7 +83,7 @@ try {
             [console]::SetCursorPosition($write_string.Length, [console]::CursorTop)
             $key_read = $true
         }
-        # checks if a keyboard input has been read (NOTE: this can read multiple queued keypresses)
+        # checks if a keyboard input has been read (NOTE: this can read multiple queued key presses)
         while ([Console]::KeyAvailable) {
             $key_read = $true
             $key = [console]::ReadKey()

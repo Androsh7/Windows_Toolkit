@@ -46,6 +46,6 @@ if (Test-Path $selectedFile) {
 $total_bytes = $byte_stream.Count
 Write-Host "Parsing Byte Stream (Total of $total_bytes Bytes)" -ForegroundColor Cyan
 
-Get-Content -Path "$selectedFile" | Select-String -Pattern "[\\x20-\\x7E]{${min_string_len},}" -List | ForEach-Object { $_.Matches.Value } | Tee-Object -FilePath $out_file -Append
+Get-Content -Path "$selectedFile" | Select-String -Pattern "[\\x00-\\x7F]{${min_string_len},}" -List | ForEach-Object { $_.Matches.Value } | Tee-Object -FilePath $out_file -Append
 
 Start-Process -FilePath "Notepad.exe" -ArgumentList $out_file
