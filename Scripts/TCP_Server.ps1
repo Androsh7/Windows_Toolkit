@@ -1,4 +1,4 @@
-$Host.UI.RawUI.WindowTitle = "TCP LISTENER"
+$Host.UI.RawUI.WindowTitle = "TCP SERVER"
 
 # resize the powershell window
 $Window = $Host.UI.RawUI.WindowSize
@@ -6,7 +6,7 @@ $Window.Height = 25
 $Window.Width  = 88
 $Host.UI.RawUI.Set_WindowSize($Window)
 
-Write-Host "-------------------------------------- TCP LISTENER -------------------------------------" -ForegroundColor Yellow
+Write-Host "-------------------------------------- TCP SERVER -------------------------------------" -ForegroundColor Yellow
 
 # determine if listener should be open to the network or only on loopback
 $scope = Read-Host -Prompt "Local (127.0.0.1) or Remote (0.0.0.0)? L/R"
@@ -45,9 +45,9 @@ $tcp_client = $tcp_listener.AcceptTcpClient()
 $tcp_listener.Stop()
 
 Clear-Host
-$Host.UI.RawUI.WindowTitle = "TCP LISTENER CONNECTION $($tcp_client.Client.LocalEndPoint) --> $($tcp_client.Client.RemoteEndPoint)"
+$Host.UI.RawUI.WindowTitle = "TCP SERVER CONNECTION $($tcp_client.Client.LocalEndPoint) --> $($tcp_client.Client.RemoteEndPoint)"
 Write-Host "---------------------------------------------------------------------------------------" -ForegroundColor Yellow
-Write-Host "TCP LISTENER CONNECTION $($tcp_client.Client.LocalEndPoint) <-- $($tcp_client.Client.RemoteEndPoint)" -ForegroundColor Yellow
+Write-Host "TCP SERVER CONNECTION $($tcp_client.Client.LocalEndPoint) <-- $($tcp_client.Client.RemoteEndPoint)" -ForegroundColor Yellow
 Write-Host "---------------------------------------------------------------------------------------" -ForegroundColor Yellow
 
 # create tcp stream
